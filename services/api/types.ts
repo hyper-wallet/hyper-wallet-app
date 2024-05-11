@@ -1,0 +1,93 @@
+import { WalletNft, WalletToken } from "@/types";
+
+export type GetHyperWalletAccountResponse = {
+  hyperWalletAccount: any;
+};
+
+export type GetTokensResponse = {
+  tokens: WalletToken[];
+};
+
+export type GetNftsResponse = {
+  nfts: WalletNft[];
+};
+
+export type GetTransactionsResponse = {
+  transactions: any[];
+};
+
+export type ConstructTxReponse = {
+  base64tx: string;
+};
+
+export type ConstructTransferLamportsTxParams = {
+  fromAddress: string;
+  toAddress: string;
+  lamports: number;
+};
+
+export type ConstructTransferSplTxParams = {
+  fromAddress: string;
+  toAddress: string;
+  tokenMintAddress: string;
+  rawAmount: number;
+};
+
+export type ConstructTransferNftTxParams = {
+  fromAddress: string;
+  toAddress: string;
+  nftMintAddress: string;
+};
+
+export type ConstructHyperTransferLamportsTxParams = {
+  fromHyperWalletPda: string;
+  hyperWalletOwnerAddress: string;
+  toAddress: string;
+  lamports: number;
+  otpHash?: Buffer;
+  proofHash?: Buffer[];
+};
+
+export type ConstructHyperTransferSplTxParams = {
+  fromHyperWalletPda: string;
+  hyperWalletOwnerAddress: string;
+  toAddress: string;
+  tokenMintAddress: string;
+  rawAmount: number;
+  otpHash?: Buffer;
+  proofHash?: Buffer[];
+};
+
+export type ConstructHyperTransferNftTxParams = {
+  fromHyperWalletPda: string;
+  hyperWalletOwnerAddress: string;
+  toAddress: string;
+  nftMintAddress: string;
+  otpHash?: Buffer;
+  proofHash?: Buffer[];
+};
+
+export type ConstructOtpSetupParams = {
+  hyperWalletPda: string;
+  hyperWalletOwnerAddress: string;
+  initTime: number;
+  root: Buffer;
+};
+
+export type ConstructEnableOtpParams = {
+  hyperWalletPda: string;
+  hyperWalletOwnerAddress: string;
+};
+
+export type ConstructDisableOtpParams = {
+  hyperWalletPda: string;
+  hyperWalletOwnerAddress: string;
+};
+export type ConstructEnableWhitelistParams = {
+  hyperWalletPda: string;
+  hyperWalletOwnerAddress: string;
+};
+export type ConstructDisableWhitelistParams = {
+  hyperWalletPda: string;
+  hyperWalletOwnerAddress: string;
+};

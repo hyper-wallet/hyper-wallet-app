@@ -35,6 +35,10 @@ export const WalletScreen: FC<RootTabScreenProps<"Wallet">> = ({
   const { walletTokens, getTokens } = useAppStore();
 
   const tokens = Array.from(walletTokens.values());
+  const usdBalance = tokens.reduce((prev, token) => {
+    const { balance, price } = token;
+    return prev + balance * price.usd;
+  }, 0);
 
   useEffect(() => {
     refresh();
@@ -82,7 +86,7 @@ export const WalletScreen: FC<RootTabScreenProps<"Wallet">> = ({
           <RefreshControl refreshing={refreshing} onRefresh={refresh} />
         }
       >
-        {/* <Balance>${usdBalance.toFixed(2)}</Balance> */}
+        <Balance>${usdBalance.toFixed(2)}</Balance>
         <ButtonsRow>
           <Button
             iconName="ri-arrow-right-up-line"

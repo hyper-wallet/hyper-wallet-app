@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { Button, Space } from "@/components";
+import { Button, SectionTitle, Space } from "@/components";
 import { ModalStackScreenProps } from "@/navigators";
 import { styled } from "styled-components/native";
 import { Image } from "expo-image";
@@ -37,15 +37,15 @@ const Value = styled.Text`
 
 const Card = styled.View`
   border-radius: 16px;
-  padding: 16px;
   background-color: ${({ theme }) => theme.background.secondary};
-  margin-top: 32px;
+  padding: 4px 0px;
 `;
 
 const Row = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  padding: 16px;
 `;
 
 const Title = styled.Text`
@@ -61,8 +61,7 @@ const Subtitle = styled.Text`
 
 const Divider = styled.View`
   height: 1px;
-  background-color: rgba(0, 0, 0, 0.1);
-  margin: 16px 0px;
+  background-color: white;
 `;
 
 export const SendTokenReviewScreen: FC<
@@ -102,6 +101,7 @@ export const SendTokenReviewScreen: FC<
         {amount} {symbol.toUpperCase()}
       </Amount>
       <Value>${(amount * (price.usd as unknown as number)).toFixed(2)}</Value>
+      <Space height={24} />
       <Card>
         <Row>
           <Title>To</Title>
@@ -112,10 +112,23 @@ export const SendTokenReviewScreen: FC<
           <Title>Network</Title>
           <Subtitle>Solana Devnet</Subtitle>
         </Row>
-        <Divider />
+        {/* <Divider />
         <Row>
           <Title>Network fee</Title>
           <Subtitle>0.005$</Subtitle>
+        </Row> */}
+      </Card>
+      <Space height={24} />
+      <SectionTitle>Pay fee with</SectionTitle>
+      <Space height={8} />
+      <Card>
+        <Row>
+          <Title>Solana</Title>
+          <Subtitle>0.000005 SOL</Subtitle>
+        </Row>
+        <Row>
+          <Title>USDT</Title>
+          <Subtitle>0.0001 USDT</Subtitle>
         </Row>
       </Card>
       <Space />

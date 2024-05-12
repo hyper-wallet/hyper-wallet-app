@@ -1,10 +1,11 @@
-import { Button, Space } from "@/components";
+import { Button, PasteButton, Space } from "@/components";
 import { ModalStackScreenProps } from "@/navigators";
 import { FC, useState } from "react";
 import { styled } from "styled-components/native";
 import { Image } from "expo-image";
 import { Keyboard, TouchableWithoutFeedback } from "react-native";
 import { useAppStore } from "@/stores/appStore";
+import { fetchStringFromClipboard } from "@/utils";
 
 const Container = styled.View`
   flex: 1;
@@ -24,14 +25,30 @@ const Row = styled.View`
 `;
 
 const Input = styled.TextInput`
+  flex: 1;
   font-size: 18px;
   font-weight: 600;
   color: ${({ theme }) => theme.foreground.primary};
-  margin: 4px 0px;
 `;
 
 const Title = styled.Text`
   font-size: 18px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.foreground.primary};
+`;
+
+const PillButton = styled.TouchableOpacity`
+  height: 32px;
+  border-radius: 100%;
+  background-color: ${({ theme }) => theme.background.secondary};
+  align-self: center;
+  align-items: center;
+  justify-content: center;
+  padding: 0px 16px;
+`;
+
+const PillButtonLabel = styled.Text`
+  font-size: 14px;
   font-weight: 600;
   color: ${({ theme }) => theme.foreground.primary};
 `;
@@ -57,10 +74,8 @@ const AmountInput = styled.TextInput`
 export const SendTokenScreen: FC<ModalStackScreenProps<"SendToken">> = (
   props
 ) => {
-  const [amount, setAmount] = useState("1");
-  const [recipientAddress, setRecipientAddress] = useState(
-    "Csg6zEgfihsi25RuJkd9M2YjENzLiYya34ZfQmr9fScb"
-  );
+  const [amount, setAmount] = useState("");
+  const [recipientAddress, setRecipientAddress] = useState("");
   const { walletTokens } = useAppStore();
 
   const { navigation, route } = props;
@@ -72,6 +87,10 @@ export const SendTokenScreen: FC<ModalStackScreenProps<"SendToken">> = (
 
   const { balance, metadata, price } = token;
   const { name, symbol, image } = metadata;
+
+  function paste() {
+    fetchStringFromClipboard().then(setRecipientAddress);
+  }
 
   function reviewSend() {
     navigation.navigate("SendTokenReview", {
@@ -90,11 +109,18 @@ export const SendTokenScreen: FC<ModalStackScreenProps<"SendToken">> = (
         <Title>{name}</Title>
         <Space height={16} />
         <Subtitle>Send to:</Subtitle>
-        <Input
-          placeholder="Enter Recipient address"
-          value={recipientAddress}
-          onChangeText={setRecipientAddress}
-        />
+        <Row>
+          <Input
+            placeholder="Enter Recipient address"
+            value={recipientAddress}
+            onChangeText={setRecipientAddress}
+            clearButtonMode="while-editing"
+            placeholderTextColor="rgba(0,0,0,0.3)"
+          />
+          <PillButton onPress={paste}>
+            <PillButtonLabel>Paste</PillButtonLabel>
+          </PillButton>
+        </Row>
         <Space height={16} />
         <Subtitle>Amount:</Subtitle>
         <AmountInput
@@ -102,6 +128,7 @@ export const SendTokenScreen: FC<ModalStackScreenProps<"SendToken">> = (
           keyboardType="numeric"
           value={amount}
           onChangeText={setAmount}
+          placeholderTextColor="rgba(0,0,0,0.3)"
         />
         <Divider />
         <Row>
@@ -111,12 +138,16 @@ export const SendTokenScreen: FC<ModalStackScreenProps<"SendToken">> = (
           </Title>
         </Row>
         <Space height={4} />
-        <Row>
+        {/* <Row>
           <Subtitle>Network fee</Subtitle>
           <Title>0.000005 SOL</Title>
-        </Row>
+        </Row> */}
         <Space />
-        <Button label="Review" onPress={reviewSend} />
+        <Button
+          label="Review"
+          onPress={reviewSend}
+          disabled={!recipientAddress || !amount}
+        />
         <Space insetBottom />
       </Container>
     </TouchableWithoutFeedback>

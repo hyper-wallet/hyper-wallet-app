@@ -16,6 +16,7 @@ const Title = styled.Text`
   font-size: 18px;
   color: ${({ theme }) => theme.foreground.secondary};
   text-align: center;
+  align-self: center;
 `;
 
 const OtpInput = styled.TextInput`
@@ -24,6 +25,8 @@ const OtpInput = styled.TextInput`
   border-radius: 16px;
   padding: 16px;
   text-align: center;
+  width: 200px;
+  align-self: center;
 `;
 
 const PillButton = styled.TouchableOpacity`

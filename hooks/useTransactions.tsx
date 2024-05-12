@@ -14,8 +14,9 @@ export function useTransactions() {
   const refresh = () => {
     setRefreshing(true);
     currentWallet
-      .getTransactions()
+      ?.getTransactions()
       .then((data) => {
+        console.log("🚀 ~ .then ~ data:", data);
         setTransactions(data);
       })
       .finally(() => setRefreshing(false));

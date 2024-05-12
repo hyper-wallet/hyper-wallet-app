@@ -23,7 +23,6 @@ const InputContainer = styled.View`
   background-color: ${({ theme }) => theme.background.secondary};
   align-items: center;
   justify-content: center;
-  margin-top: 24px;
   padding: 12px 16px 16px 16px;
   height: 110px;
   border-radius: 16px;
@@ -75,12 +74,14 @@ export const ImportPrivateKeyScreen: FC<
           Enter your private key below. It is a series of random letters or a
           list of numbers.
         </Subtitle>
+        <Space height={8} />
         <InputContainer>
           <Input
             value={privateKey}
             onChangeText={setPrivateKey}
             placeholder="Paste here or type..."
             multiline
+            placeholderTextColor="rgba(0,0,0,0.3)"
           />
         </InputContainer>
         <PillButton onPress={paste}>
@@ -89,7 +90,7 @@ export const ImportPrivateKeyScreen: FC<
         <Space />
         <Button
           label={importing ? "Importing Wallet" : "Import Wallet"}
-          disabled={importing}
+          disabled={!privateKey || importing}
           onPress={submitImport}
         />
         <Space height={insets.bottom} />

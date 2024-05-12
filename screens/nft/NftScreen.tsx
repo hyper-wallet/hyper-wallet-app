@@ -30,11 +30,11 @@ const Gallery = styled.View`
 
 export const NftScreen: FC<RootTabScreenProps<"NFT">> = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
-  const { walletNfts, getNfts } = useAppStore();
+  const { currentWallet, walletNfts, getNfts } = useAppStore();
 
   useEffect(() => {
     refresh();
-  }, []);
+  }, [currentWallet]);
 
   async function refresh() {
     setRefreshing(true);

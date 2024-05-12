@@ -1,6 +1,8 @@
+import { Space } from "@/components";
 import { ModalStackScreenProps } from "@/navigators";
 import { useAppStore } from "@/stores/appStore";
 import { palette } from "@/theme/palette";
+import { Image } from "expo-image";
 import { FC } from "react";
 import styled from "styled-components/native";
 
@@ -11,7 +13,7 @@ const Container = styled.View`
 `;
 
 const SolanaWalletCard = styled.TouchableOpacity<{ active: boolean }>`
-  height: 100px;
+  /* height: 100px; */
   background-color: ${({ active, theme }) =>
     active ? palette.purple[10] : theme.background.secondary};
   border: 1px solid
@@ -22,7 +24,7 @@ const SolanaWalletCard = styled.TouchableOpacity<{ active: boolean }>`
 `;
 
 const HyperWalletCard = styled.TouchableOpacity<{ active: boolean }>`
-  height: 100px;
+  /* height: 100px; */
   background-color: ${({ active, theme }) =>
     active ? palette.green[10] : theme.background.secondary};
   border: 1px solid
@@ -43,17 +45,18 @@ const Subtitle = styled.Text`
   color: rgba(0, 0, 0, 0.3);
 `;
 
-export const SelectWalletScreen: FC<
-  ModalStackScreenProps<"SelectWallet">
-> = () => {
+export const SelectWalletScreen: FC<ModalStackScreenProps<"SelectWallet">> = (
+  props
+) => {
+  const { navigation } = props;
   const appStore = useAppStore();
   const { solanaWallet, hyperWallet, currentWallet, setCurrentWallet } =
     appStore;
-  function activateSolanaWallet() {
-    setCurrentWallet(solanaWallet);
+  async function activateSolanaWallet() {
+    await setCurrentWallet(solanaWallet);
   }
-  function activateHyperWallet() {
-    setCurrentWallet(hyperWallet);
+  async function activateHyperWallet() {
+    await setCurrentWallet(hyperWallet);
   }
 
   return (
@@ -62,6 +65,11 @@ export const SelectWalletScreen: FC<
         active={!currentWallet?.isHyperWallet}
         onPress={activateSolanaWallet}
       >
+        <Image
+          source={require("@/assets/images/solana-wallet-icon.png")}
+          style={{ width: 48, height: 48 }}
+        />
+        <Space height={8} />
         <Title>Solana Wallet</Title>
         <Subtitle>This is your Solana wallet</Subtitle>
       </SolanaWalletCard>
@@ -69,8 +77,17 @@ export const SelectWalletScreen: FC<
         active={currentWallet?.isHyperWallet}
         onPress={activateHyperWallet}
       >
+        <Image
+          source={require("@/assets/images/hyper-wallet-icon.png")}
+          style={{ width: 48, height: 48 }}
+        />
+        <Space height={8} />
         <Title>Hyper Wallet</Title>
-        <Subtitle>This is your Hyper wallet</Subtitle>
+        <Space height={4} />
+        <Subtitle>
+          This wallet is associated with your Solana wallet. It is managed by
+          smart contract to provide more features
+        </Subtitle>
       </HyperWalletCard>
     </Container>
   );

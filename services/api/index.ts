@@ -21,6 +21,8 @@ import {
   ConstructEnableOtpParams,
   ConstructEnableWhitelistParams,
   ConstructDisableWhitelistParams,
+  ConstructAddToWhitelistParams,
+  ConstructRemoveFromWhitelistParams,
 } from "./types";
 import { WalletNft, WalletToken, WalletTransaction } from "@/types";
 
@@ -302,8 +304,34 @@ export class Api {
     );
     return res.data.base64tx;
   }
-  async constructAddToWhitelistTx(params: unknown) {}
-  async constructRemoveFromWhitelistTx(params: unknown) {}
+  async constructAddToWhitelistTx(params: ConstructAddToWhitelistParams) {
+    const { hyperWalletPda, hyperWalletOwnerAddress, addressToBeAdded } =
+      params;
+    const res = await this._apisauce.post<ConstructTxReponse>(
+      "/hyper-wallet/tx/whitelist/add",
+      {
+        hyperWalletPda,
+        hyperWalletOwnerAddress,
+        addressToBeAdded,
+      }
+    );
+    return res.data.base64tx;
+  }
+  async constructRemoveFromWhitelistTx(
+    params: ConstructRemoveFromWhitelistParams
+  ) {
+    const { hyperWalletPda, hyperWalletOwnerAddress, addressToBeRemoved } =
+      params;
+    const res = await this._apisauce.post<ConstructTxReponse>(
+      "/hyper-wallet/tx/whitelist/remove",
+      {
+        hyperWalletPda,
+        hyperWalletOwnerAddress,
+        addressToBeRemoved,
+      }
+    );
+    return res.data.base64tx;
+  }
 
   async constructEnableSpendingLimitTx() {}
   async constructDisableSpendingLimitTx() {}

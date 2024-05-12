@@ -118,7 +118,12 @@ export const ConfirmTxModal = forwardRef<Modalize, ConfirmTxModalProps>(
             onPress={close}
           />
           <Space width={16} />
-          <Button style={{ flex: 1 }} label="Confirm" onPress={confirmTx} />
+          <Button
+            disabled={loading}
+            style={{ flex: 1 }}
+            label={loading ? "Loading" : "Confirm"}
+            onPress={confirmTx}
+          />
         </Row>
       </ModalSheet>
     );

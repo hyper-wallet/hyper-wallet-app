@@ -32,7 +32,7 @@ export const WalletScreen: FC<RootTabScreenProps<"Wallet">> = ({
   navigation,
 }) => {
   const [refreshing, setRefreshing] = useState(false);
-  const { walletTokens, getTokens } = useAppStore();
+  const { currentWallet, walletTokens, getTokens } = useAppStore();
 
   const tokens = Array.from(walletTokens.values());
   const usdBalance = tokens.reduce((prev, token) => {
@@ -42,7 +42,7 @@ export const WalletScreen: FC<RootTabScreenProps<"Wallet">> = ({
 
   useEffect(() => {
     refresh();
-  }, []);
+  }, [currentWallet]);
 
   const viewTokenDetail = (mint_address: string) => {
     navigation.navigate("ModalStack", {

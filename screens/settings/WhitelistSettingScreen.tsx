@@ -7,12 +7,16 @@ import {
   Title,
   EmptyState,
   ModalSheet,
+  Icon,
+  Subtitle,
 } from "@/components";
 import { ModalStackScreenProps } from "@/navigators";
 import { useAppStore } from "@/stores/appStore";
 import { HyperWallet } from "@/lib/HyperWallet";
-import { Switch, View } from "react-native";
+import { Alert, Switch, TouchableOpacity, View } from "react-native";
 import { Modalize } from "react-native-modalize";
+import { ConfirmTxModal } from "./ConfirmTxModal";
+import { palette } from "@/theme/palette";
 
 const Container = styled.View`
   flex: 1;
@@ -22,13 +26,14 @@ const Container = styled.View`
 const Card = styled.View`
   border-radius: 16px;
   background-color: rgba(0, 0, 0, 0.05);
-  padding: 8px 16px;
+  padding: 4px 0px;
 `;
 
 const Row = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  padding: 16px;
 `;
 
 const PillButton = styled.TouchableOpacity`
@@ -43,26 +48,12 @@ export const WhitelistSettingScreen: FC<
   ModalStackScreenProps<"WhitelistSetting">
 > = () => {
   const appStore = useAppStore();
-  const confirmTxModal = useRef<Modalize>(null);
-  const addAddressModal = useRef<Modalize>(null);
+  const enableWhitelistModal = useRef<Modalize>(null);
+  const disableWhitelistModal = useRef<Modalize>(null);
+  const removeAddressModal = useRef<Modalize>(null);
   const { currentWallet } = appStore;
-  const [enabled, setEnabled] = useState(
-    currentWallet instanceof HyperWallet
-      ? currentWallet?.whitelistEnabled
-      : false
-  );
 
-  useEffect(() => {
-    if (enabled) {
-      //
-    }
-  }, [enabled]);
-
-  const addresses =
-    currentWallet instanceof HyperWallet
-      ? currentWallet?.whitelistedAddresses
-      : [];
-  if (!currentWallet?.isHyperWallet) {
+  if (!(currentWallet instanceof HyperWallet)) {
     return (
       <View>
         <Space height={16} />
@@ -71,30 +62,62 @@ export const WhitelistSettingScreen: FC<
     );
   }
 
+  const enabled = currentWallet.whitelistEnabled;
+  const addresses = currentWallet.whitelistedAddresses;
+
+  function enable() {
+    enableWhitelistModal.current?.open();
+  }
+  function disable() {
+    enableWhitelistModal.current?.open();
+  }
+  function addAddress() {
+    Alert.prompt(
+      "Enter address",
+      "Enter address to be added to whitelist",
+      (value) => {
+        (currentWallet as HyperWallet).addAddressToWhitelist(value);
+      }
+    );
+  }
+  function removeAddress(address: string) {
+    (currentWallet as HyperWallet).removeAddressFromWhitelist(address);
+  }
+
   return (
     <Container>
-      <Card>
-        <Row>
-          <Title>Enabled</Title>
-          <Switch value={enabled} />
-        </Row>
-      </Card>
-      <Space height={16} />
-      <Row>
-        <SectionTitle>Whitelisted addresses</SectionTitle>
-        <PillButton>
-          <PillButtonLabel>Add</PillButtonLabel>
-        </PillButton>
-      </Row>
+      <SectionTitle>Whitelisted addresses</SectionTitle>
       <Space height={8} />
-      <Card>
-        {addresses.map((address) => (
-          <Row>
-            <Title>{address}</Title>
-          </Row>
-        ))}
-      </Card>
-      <ModalSheet ref={confirmTxModal}></ModalSheet>
+      {addresses.length > 0 && (
+        <Card>
+          {addresses.map((address) => (
+            <Row>
+              <Subtitle
+                numberOfLines={1}
+                ellipsizeMode="middle"
+                style={{ flex: 1 }}
+              >
+                {address}
+              </Subtitle>
+              <Space width={8} />
+              <TouchableOpacity onPress={() => removeAddress(address)}>
+                <Icon name="ri-delete-bin-line" color={palette.red[50]} />
+              </TouchableOpacity>
+            </Row>
+          ))}
+        </Card>
+      )}
+      <Space />
+      <Button variant="secondary" label="Add address" onPress={addAddress} />
+      <Space height={16} />
+      {enabled ? (
+        <Button label="Disable" onPress={disable} />
+      ) : (
+        <Button label="Enable" onPress={enable} />
+      )}
+      <Space insetBottom />
+      <ConfirmTxModal ref={enableWhitelistModal} method="enableWhitelist" />
+      <ConfirmTxModal ref={disableWhitelistModal} method="disableWhitelist" />
     </Container>
   );
 };

@@ -35,7 +35,7 @@ interface AppState {
   getTokens: () => Promise<void>;
   getNfts: () => Promise<void>;
   getTransactions: () => Promise<void>;
-  setCurrentWallet: (wallet: IWallet) => void;
+  setCurrentWallet: (wallet: IWallet) => Promise<void>;
   importPrivateKey: (privateKey: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
@@ -87,10 +87,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       currentWallet,
     });
   },
-  setCurrentWallet: (wallet: IWallet) => {
+  setCurrentWallet: async (wallet: IWallet) => {
     set({ currentWallet: wallet });
-    get().getTokens();
-    get().getNfts();
   },
   importPrivateKey: async (privateKey: string) => {
     set({ creatingWallet: true });

@@ -36,7 +36,17 @@ export const WalletSelector = () => {
 
   return (
     <Container onPress={selectWallet}>
-      <WalletIcon source={{ uri: currentWallet?.icon }} />
+      {currentWallet?.isHyperWallet ? (
+        <Image
+          source={require("@/assets/images/hyper-wallet-icon.png")}
+          style={{ width: 20, height: 20 }}
+        />
+      ) : (
+        <Image
+          source={require("@/assets/images/solana-wallet-icon.png")}
+          style={{ width: 20, height: 20 }}
+        />
+      )}
       <Title>
         {currentWallet?.isHyperWallet ? "Hyper Wallet" : "Solana Wallet"}
       </Title>

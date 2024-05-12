@@ -228,6 +228,27 @@ export class HyperWallet implements IWallet {
     });
     return this._signAndSendTransaction(base64tx);
   }
+  async addAddressToWhitelist(address: string) {
+    console.log("🚀 ~ HyperWallet ~ addAddressToWhitelist ~ address:", address);
+    const base64tx = await api.constructAddToWhitelistTx({
+      hyperWalletPda: this.address,
+      hyperWalletOwnerAddress: this.owner.address,
+      addressToBeAdded: address,
+    });
+    console.log(
+      "🚀 ~ HyperWallet ~ addAddressToWhitelist ~ base64tx:",
+      base64tx
+    );
+    return this._signAndSendTransaction(base64tx);
+  }
+  async removeAddressFromWhitelist(address: string) {
+    const base64tx = await api.constructRemoveFromWhitelistTx({
+      hyperWalletPda: this.address,
+      hyperWalletOwnerAddress: this.owner.address,
+      addressToBeRemoved: address,
+    });
+    return this._signAndSendTransaction(base64tx);
+  }
 
   private async _getOtpHashAndProofHash(otp: string) {
     const otpHash = createHash("sha256").update(otp).digest();
@@ -248,7 +269,6 @@ export class HyperWallet implements IWallet {
     const signature = await this.owner.signAndSendTransaction(
       recoveredTransaction
     );
-    this.init();
     return signature;
   }
 }

@@ -91,3 +91,13 @@ export type ConstructDisableWhitelistParams = {
   hyperWalletPda: string;
   hyperWalletOwnerAddress: string;
 };
+export type ConstructAddToWhitelistParams = {
+  hyperWalletPda: string;
+  hyperWalletOwnerAddress: string;
+  addressToBeAdded: string;
+};
+export type ConstructRemoveFromWhitelistParams = {
+  hyperWalletPda: string;
+  hyperWalletOwnerAddress: string;
+  addressToBeRemoved: string;
+};

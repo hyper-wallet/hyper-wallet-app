@@ -49,12 +49,17 @@ export const SendTokenResultScreen: FC<
   const [signature, setSignature] = useState("");
   const appStore = useAppStore();
   const theme = useTheme();
-  const { currentWallet } = appStore;
+  const { currentWallet, walletTokens } = appStore;
 
   const { navigation, route } = props;
-  const { token, toAddress, amount, otp } = route.params;
+  const { mint_address, toAddress, amount, otp } = route.params;
+  const token = walletTokens.get(mint_address);
+  if (!token || !currentWallet) {
+    return null;
+  }
+
   const { metadata } = token;
-  const { name, symbol, mint_address } = metadata;
+  const { name, symbol } = metadata;
 
   useEffect(() => {
     send();
@@ -85,7 +90,11 @@ export const SendTokenResultScreen: FC<
     : `Sent ${amount} ${symbol.toUpperCase()} to ${middleEllipsis(toAddress)}`;
 
   function close() {
-    navigation.getParent().goBack();
+    try {
+      navigation.goBack();
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   function viewOnExplorer() {}
@@ -96,7 +105,7 @@ export const SendTokenResultScreen: FC<
       // Token is Solana - Native token
       const lamports = amount * LAMPORTS_PER_SOL;
       currentWallet
-        .transferLamports({
+        ?.transferLamports({
           toAddress,
           lamports,
           otp,
@@ -107,7 +116,7 @@ export const SendTokenResultScreen: FC<
     } else {
       const rawAmount = amount * Math.pow(10, 6);
       currentWallet
-        .transferSpl({
+        ?.transferSpl({
           toAddress,
           tokenMintAddress: mint_address,
           rawAmount,

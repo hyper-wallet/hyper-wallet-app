@@ -39,7 +39,9 @@ const PillButton = styled.TouchableOpacity`
 
 const PillButtonLabel = styled.Text``;
 
-export const WhiteListScreen: FC<ModalStackScreenProps<"Whitelist">> = () => {
+export const WhitelistSettingScreen: FC<
+  ModalStackScreenProps<"WhitelistSetting">
+> = () => {
   const appStore = useAppStore();
   const confirmTxModal = useRef<Modalize>(null);
   const addAddressModal = useRef<Modalize>(null);

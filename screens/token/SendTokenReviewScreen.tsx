@@ -69,22 +69,27 @@ export const SendTokenReviewScreen: FC<
   ModalStackScreenProps<"SendTokenReview">
 > = (props) => {
   const { navigation, route } = props;
-  const { currentWallet } = useAppStore();
-  const { token, toAddress, amount } = route.params;
+  const { currentWallet, walletTokens } = useAppStore();
+  const { mint_address, toAddress, amount } = route.params;
+  const token = walletTokens.get(mint_address);
+  if (!token) {
+    return null;
+  }
+
   const { metadata, price } = token;
   const { symbol, image } = metadata;
 
   function confirmSend() {
     if (currentWallet instanceof HyperWallet && currentWallet.otpEnabled) {
-      navigation.replace("SendTokenOtp", {
-        token,
+      navigation.navigate("SendTokenOtp", {
+        mint_address,
         toAddress,
         amount,
       });
       return;
     }
-    navigation.replace("SendTokenResult", {
-      token,
+    navigation.navigate("SendTokenResult", {
+      mint_address,
       toAddress,
       amount,
     });

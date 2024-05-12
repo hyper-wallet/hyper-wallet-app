@@ -34,15 +34,17 @@ export const WalletScreen: FC<RootTabScreenProps<"Wallet">> = ({
   const [refreshing, setRefreshing] = useState(false);
   const { walletTokens, getTokens } = useAppStore();
 
+  const tokens = Array.from(walletTokens.values());
+
   useEffect(() => {
     refresh();
   }, []);
 
-  const viewTokenDetail = (token: WalletToken) => {
+  const viewTokenDetail = (mint_address: string) => {
     navigation.navigate("ModalStack", {
       screen: "TokenDetails",
       params: {
-        token,
+        mint_address,
       },
     });
   };
@@ -99,11 +101,11 @@ export const WalletScreen: FC<RootTabScreenProps<"Wallet">> = ({
           />
           <Button iconName="ri-add-line" label="Buy" onPress={buy} />
         </ButtonsRow>
-        {walletTokens.map((token) => (
+        {tokens.map((token) => (
           <TokenItem
             key={token.metadata.mint_address}
             {...token}
-            onPress={() => viewTokenDetail(token)}
+            onPress={() => viewTokenDetail(token.metadata.mint_address)}
           />
         ))}
       </ScrollView>

@@ -4,6 +4,7 @@ import { FC, useState } from "react";
 import { styled } from "styled-components/native";
 import { Image } from "expo-image";
 import { Keyboard, TouchableWithoutFeedback } from "react-native";
+import { useAppStore } from "@/stores/appStore";
 
 const Container = styled.View`
   flex: 1;
@@ -60,15 +61,21 @@ export const SendTokenScreen: FC<ModalStackScreenProps<"SendToken">> = (
   const [recipientAddress, setRecipientAddress] = useState(
     "Csg6zEgfihsi25RuJkd9M2YjENzLiYya34ZfQmr9fScb"
   );
+  const { walletTokens } = useAppStore();
 
   const { navigation, route } = props;
-  const { token } = route.params;
+  const { mint_address } = route.params;
+  const token = walletTokens.get(mint_address);
+  if (!token) {
+    return null;
+  }
+
   const { balance, metadata, price } = token;
   const { name, symbol, image } = metadata;
 
   function reviewSend() {
     navigation.navigate("SendTokenReview", {
-      token,
+      mint_address,
       toAddress: recipientAddress,
       amount: parseFloat(amount.replace(",", ".")),
     });
@@ -87,7 +94,6 @@ export const SendTokenScreen: FC<ModalStackScreenProps<"SendToken">> = (
           placeholder="Enter Recipient address"
           value={recipientAddress}
           onChangeText={setRecipientAddress}
-          autoFocus
         />
         <Space height={16} />
         <Subtitle>Amount:</Subtitle>

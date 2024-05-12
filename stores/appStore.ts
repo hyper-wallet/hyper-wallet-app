@@ -27,7 +27,7 @@ interface AppState {
   hyperWallet: HyperWallet | null;
   currentWallet: IWallet | null;
   creatingWallet: boolean;
-  walletTokens: WalletToken[];
+  walletTokens: Map<string, WalletToken>;
   walletNfts: WalletNft[];
   walletTransactions: WalletTransaction[];
   walletSettings: WalletSettings;
@@ -49,7 +49,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   hyperWallet: null,
   currentWallet: null,
   creatingWallet: false,
-  walletTokens: [],
+  walletTokens: new Map(),
   walletNfts: [],
   walletTransactions: [],
   walletSettings: {
@@ -148,7 +148,9 @@ export const useAppStore = create<AppState>((set, get) => ({
     if (!currentWallet) return;
 
     const tokens = await currentWallet.getTokens();
-    set({ walletTokens: tokens });
+    const walletTokens = new Map();
+    tokens.map((token) => walletTokens.set(token.metadata.mint_address, token));
+    set({ walletTokens });
   },
   getNfts: async () => {
     const currentWallet = get().currentWallet;

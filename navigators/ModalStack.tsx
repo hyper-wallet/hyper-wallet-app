@@ -9,7 +9,7 @@ import {
   SendNftScreen,
   SendTokenReviewScreen,
   SendTokenResultScreen,
-  WhiteListScreen,
+  WhitelistSettingScreen,
   SendTokenOtpScreen,
   OtpSettingScreen,
 } from "@/screens";
@@ -22,27 +22,27 @@ import {
 export type ModalStackParamList = {
   SelectWallet: undefined;
   TokenDetails: {
-    token: WalletToken;
+    mint_address: string;
   };
   NFTDetails: {
     nft: WalletNft;
   };
   WalletAddress: undefined;
   SendToken: {
-    token: WalletToken;
+    mint_address: string;
   };
   SendTokenReview: {
-    token: WalletToken;
+    mint_address: string;
     toAddress: string;
     amount: number;
   };
   SendTokenOtp: {
-    token: WalletToken;
+    mint_address: string;
     toAddress: string;
     amount: number;
   };
   SendTokenResult: {
-    token: WalletToken;
+    mint_address: string;
     toAddress: string;
     amount: number;
     otp?: string;
@@ -147,12 +147,12 @@ export const ModalStack = () => {
       <Stack.Screen
         name="OtpSetting"
         component={OtpSettingScreen}
-        options={{ title: "OTP" }}
+        options={{ title: "OTP Setting" }}
       />
       <Stack.Screen
-        name="Whitelist"
-        component={WhiteListScreen}
-        options={{ title: "Whitelist" }}
+        name="WhitelistSetting"
+        component={WhitelistSettingScreen}
+        options={{ title: "Whitelist Setting" }}
       />
     </Stack.Navigator>
   );

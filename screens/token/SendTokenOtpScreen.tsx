@@ -1,10 +1,11 @@
-import { TextInput } from "react-native";
+import { Keyboard, TextInput, TouchableWithoutFeedback } from "react-native";
 import { FC, useState } from "react";
 import { Button, Space } from "@/components";
 import { ModalStackScreenProps } from "@/navigators";
 import { styled } from "styled-components/native";
 import { Image } from "expo-image";
 import { middleEllipsis } from "@/utils";
+import { useAppStore } from "@/stores/appStore";
 
 const Container = styled.View`
   flex: 1;
@@ -73,14 +74,20 @@ export const SendTokenOtpScreen: FC<ModalStackScreenProps<"SendTokenOtp">> = (
   props
 ) => {
   const { navigation, route } = props;
-  const { token, toAddress, amount } = route.params;
+  const { walletTokens } = useAppStore();
+  const { mint_address, toAddress, amount } = route.params;
+  const token = walletTokens.get(mint_address);
+  if (!token) {
+    return null;
+  }
+
   const { metadata, price } = token;
   const { symbol, image } = metadata;
   const [otp, setOtp] = useState("");
 
   function confirmSend() {
-    navigation.replace("SendTokenResult", {
-      token,
+    navigation.navigate("SendTokenResult", {
+      mint_address,
       toAddress,
       amount,
       otp,
@@ -88,32 +95,14 @@ export const SendTokenOtpScreen: FC<ModalStackScreenProps<"SendTokenOtp">> = (
   }
 
   return (
-    <Container>
-      <CoinIcon source={{ uri: image }} />
-      <Amount>
-        {amount} {symbol.toUpperCase()}
-      </Amount>
-      <Value>${(amount * (price.usd as unknown as number)).toFixed(2)}</Value>
-      <Card>
-        <Row>
-          <Title>To</Title>
-          <Subtitle>{middleEllipsis(toAddress)}</Subtitle>
-        </Row>
-        <Divider />
-        <Row>
-          <Title>Network</Title>
-          <Subtitle>Solana Devnet</Subtitle>
-        </Row>
-        <Divider />
-        <Row>
-          <Title>Network fee</Title>
-          <Subtitle>0.005$</Subtitle>
-        </Row>
-      </Card>
-      <OtpInput onChangeText={setOtp} />
-      <Space />
-      <Button label="Confirm" onPress={confirmSend} />
-      <Space insetBottom />
-    </Container>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <Container>
+        <Title>Please enter OTP code to confirm transaction</Title>
+        <OtpInput onChangeText={setOtp} keyboardType="numeric" />
+        <Space />
+        <Button label="Confirm" onPress={confirmSend} />
+        <Space insetBottom />
+      </Container>
+    </TouchableWithoutFeedback>
   );
 };

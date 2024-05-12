@@ -72,7 +72,7 @@ export const SecuritySection = () => {
   function viewWhitelistSetting() {
     //@ts-ignore
     navigation.navigate("ModalStack", {
-      screen: "Whitelist",
+      screen: "WhitelistSetting",
     });
   }
 
@@ -96,45 +96,13 @@ export const SecuritySection = () => {
           </Row>
         </TouchableOpacity>
         <Divider />
-        <Row>
-          <Title>Whitelist</Title>
-          <Switch
-            value={whitelistEnabled}
-            onValueChange={changeWhitelistSetting}
-          />
-        </Row>
-        <Divider />
         <TouchableOpacity onPress={viewWhitelistSetting}>
           <Row>
-            <Title>Whitelisted Addresses</Title>
+            <Title>Whitelist</Title>
             <Icon name="ri-arrow-right-s-line" size={20} />
           </Row>
         </TouchableOpacity>
       </Card>
-      <ConfirmTxModal
-        ref={confirmEnableOtpTxModal}
-        method="enableOtp"
-        onConfirmed={() => setOtpEnabled(true)}
-        onRejected={() => setOtpEnabled(false)}
-      />
-      <ConfirmTxModal
-        ref={confirmDisableOtpTxModal}
-        method="disableOtp"
-        onConfirmed={() => setOtpEnabled(false)}
-        onRejected={() => setOtpEnabled(true)}
-      />
-      <ConfirmTxModal
-        ref={confirmEnableWhitelistTxModal}
-        method="enableWhitelist"
-        onConfirmed={() => setWhitelistEnabled(true)}
-        onRejected={() => setWhitelistEnabled(false)}
-      />
-      <ConfirmTxModal
-        ref={confirmDisableWhitelistTxModal}
-        method="disableWhitelist"
-        onConfirmed={() => setWhitelistEnabled(false)}
-        onRejected={() => setWhitelistEnabled(true)}
-      />
     </Container>
   );
 };

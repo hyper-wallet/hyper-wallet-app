@@ -6,6 +6,7 @@ import { Button, Space, Image } from "@/components";
 import { MarketStats } from "./MarketStats";
 import { About } from "./About";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useAppStore } from "@/stores/appStore";
 
 const Container = styled.ScrollView`
   flex: 1;
@@ -68,20 +69,26 @@ export const TokenDetailsScreen: FC<ModalStackScreenProps<"TokenDetails">> = (
   props
 ) => {
   const { navigation, route } = props;
-  const { token } = route.params;
-  const { balance, metadata, price } = token;
-  const { name, symbol, image, mint_address } = metadata;
+  const { walletTokens } = useAppStore();
+  const insets = useSafeAreaInsets();
   const [stats, setStats] = useState({
     high_3m_usd: 0,
     high_24h_usd: 0,
     low_3m_usd: 0,
     low_24h_usd: 0,
   });
-  const insets = useSafeAreaInsets();
+  const { mint_address } = route.params;
+  const token = walletTokens.get(mint_address);
+  if (!token) {
+    return null;
+  }
+
+  const { balance, metadata, price } = token;
+  const { name, symbol, image } = metadata;
 
   const send = () => {
     navigation.navigate("SendToken", {
-      token,
+      mint_address,
     });
   };
 

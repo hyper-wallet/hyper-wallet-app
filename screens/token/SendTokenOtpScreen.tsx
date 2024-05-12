@@ -4,7 +4,7 @@ import { Button, Space } from "@/components";
 import { ModalStackScreenProps } from "@/navigators";
 import { styled } from "styled-components/native";
 import { Image } from "expo-image";
-import { middleEllipsis } from "@/utils";
+import { fetchStringFromClipboard, middleEllipsis } from "@/utils";
 import { useAppStore } from "@/stores/appStore";
 
 const Container = styled.View`
@@ -12,62 +12,35 @@ const Container = styled.View`
   padding: 16px;
 `;
 
-const CoinIcon = styled(Image)`
-  width: 80px;
-  height: 80px;
-  border-radius: 999px;
-  align-self: center;
-  margin-top: 24px;
-  border: 1px solid ${({ theme }) => theme.border.primary};
-`;
-
-const Amount = styled.Text`
-  font-size: 24px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.foreground.primary};
-  align-self: center;
-  margin-top: 8px;
-`;
-
-const Value = styled.Text`
-  font-size: 20px;
-  color: ${({ theme }) => theme.foreground.tertiary};
-  align-self: center;
-`;
-
-const Card = styled.View`
-  border-radius: 16px;
-  padding: 16px;
-  background-color: ${({ theme }) => theme.background.secondary};
-  margin-top: 32px;
-`;
-
-const Row = styled.View`
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-`;
-
 const Title = styled.Text`
-  font-size: 16px;
+  font-size: 18px;
   color: ${({ theme }) => theme.foreground.secondary};
-`;
-
-const Subtitle = styled.Text`
-  font-size: 16px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.foreground.primary};
-`;
-
-const Divider = styled.View`
-  height: 1px;
-  background-color: rgba(0, 0, 0, 0.1);
-  margin: 16px 0px;
+  text-align: center;
 `;
 
 const OtpInput = styled.TextInput`
-  border: 1px solid black;
-  font-size: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  font-size: 48px;
+  border-radius: 16px;
+  padding: 16px;
+  text-align: center;
+`;
+
+const PillButton = styled.TouchableOpacity`
+  height: 36px;
+  border-radius: 100%;
+  background-color: ${({ theme }) => theme.background.secondary};
+  align-self: center;
+  align-items: center;
+  justify-content: center;
+  padding: 0px 16px;
+  margin-top: 16px;
+`;
+
+const PillButtonLabel = styled.Text`
+  font-size: 16px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.foreground.primary};
 `;
 
 export const SendTokenOtpScreen: FC<ModalStackScreenProps<"SendTokenOtp">> = (
@@ -81,9 +54,11 @@ export const SendTokenOtpScreen: FC<ModalStackScreenProps<"SendTokenOtp">> = (
     return null;
   }
 
-  const { metadata, price } = token;
-  const { symbol, image } = metadata;
   const [otp, setOtp] = useState("");
+
+  function paste() {
+    fetchStringFromClipboard().then(setOtp);
+  }
 
   function confirmSend() {
     navigation.navigate("SendTokenResult", {
@@ -97,8 +72,14 @@ export const SendTokenOtpScreen: FC<ModalStackScreenProps<"SendTokenOtp">> = (
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <Container>
+        <Space />
         <Title>Please enter OTP code to confirm transaction</Title>
-        <OtpInput onChangeText={setOtp} keyboardType="numeric" />
+        <Space height={16} />
+        <OtpInput value={otp} onChangeText={setOtp} keyboardType="numeric" />
+        <PillButton onPress={paste}>
+          <PillButtonLabel>Paste</PillButtonLabel>
+        </PillButton>
+        <Space height={200} />
         <Space />
         <Button label="Confirm" onPress={confirmSend} />
         <Space insetBottom />

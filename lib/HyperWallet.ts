@@ -184,6 +184,8 @@ export class HyperWallet implements IWallet {
     // Generate link + QR Code
     const otpLink = `otpauth://totp/Hyper%Wallet:${this.address}?secret=${secretKey}&issuer=Hyper%20Wallet&algorithm=SHA1&digits=6&period=30`;
     // Submit root + init time
+    console.log("🚀 ~ HyperWallet ~ setupOtp ~ otpLink:", otpLink);
+
     const tx = await api.constructSetupOtpTx({
       hyperWalletPda: this.address,
       hyperWalletOwnerAddress: this.owner.address,

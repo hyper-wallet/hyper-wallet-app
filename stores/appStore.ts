@@ -3,11 +3,10 @@ import { SolanaWallet } from "@/lib/SolanaWallet";
 import { HyperWallet } from "@/lib/HyperWallet";
 import Constants, { AppOwnership } from "expo-constants";
 import * as Linking from "expo-linking";
-import { api, connection, privateKeyProvider, web3auth } from "@/services";
+import { connection, web3auth } from "@/services";
 import { LOGIN_PROVIDER } from "@web3auth/react-native-sdk";
 import { IWallet } from "@/lib/interfaces";
 import { clear, load, loadString, save, saveString } from "@/utils";
-import { useSettingsStore } from "./settingsStore";
 import {
   WalletNft,
   WalletSettings,
@@ -32,6 +31,7 @@ interface AppState {
   walletTransactions: WalletTransaction[];
   walletSettings: WalletSettings;
   init: () => Promise<void>;
+  initWallet: (privateKey: string) => Promise<void>;
   getTokens: () => Promise<void>;
   getNfts: () => Promise<void>;
   getTransactions: () => Promise<void>;
@@ -57,47 +57,26 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
   init: async () => {
     // Recover settings
-    const savedSettings = await load("settings");
+    const savedSettings = await getSettings();
     if (!savedSettings) {
-      save("settings", { defaultWallet: "hyper" });
+      saveSettings({ defaultWallet: "hyper" });
     } else {
       set({ walletSettings: savedSettings });
     }
 
+    const privateKey = web3auth.ed25519Key || (await loadString("private-key"));
+    if (privateKey) {
+      await get().initWallet(privateKey);
+    }
     // Init Stores and Services
     await web3auth.init();
 
-    // Recover wallet if existed
-    // Get private key from web3auth or local storage
-    const privateKey = web3auth.ed25519Key || (await loadString("private-key"));
-    if (privateKey) {
-      const solanaWallet = new SolanaWallet(privateKey, connection);
-      const hyperWallet = new HyperWallet(solanaWallet);
-      await hyperWallet.init();
-      const currentWallet = solanaWallet;
-      set({
-        solanaWallet,
-        hyperWallet,
-        currentWallet,
-      });
-    }
-
     set({ initialized: true });
   },
-  setCurrentWallet: (wallet: IWallet) => {
-    set({ currentWallet: wallet });
-    useSettingsStore
-      .getState()
-      .setDefaultWallet(wallet.isHyperWallet ? "hyper" : "solana");
-  },
-  importPrivateKey: async (privateKey: string) => {
-    set({ creatingWallet: true });
-
-    // Create Wallet phase
+  initWallet: async (privateKey: string) => {
     const solanaWallet = new SolanaWallet(privateKey, connection);
     const hyperWallet = new HyperWallet(solanaWallet);
     await hyperWallet.init();
-    saveString("private-key", privateKey);
     const currentWallet =
       get().walletSettings.defaultWallet == "hyper"
         ? hyperWallet
@@ -106,8 +85,17 @@ export const useAppStore = create<AppState>((set, get) => ({
       solanaWallet,
       hyperWallet,
       currentWallet,
-      creatingWallet: false,
     });
+  },
+  setCurrentWallet: (wallet: IWallet) => {
+    set({ currentWallet: wallet });
+    get().getTokens();
+    get().getNfts();
+  },
+  importPrivateKey: async (privateKey: string) => {
+    set({ creatingWallet: true });
+    await get().initWallet(privateKey);
+    set({ creatingWallet: false });
   },
   loginWithGoogle: async () => {
     set({ creatingWallet: true });
@@ -115,17 +103,9 @@ export const useAppStore = create<AppState>((set, get) => ({
       loginProvider: LOGIN_PROVIDER.GOOGLE,
       redirectUrl: resolvedRedirectUrl,
     });
-    const solanaWallet = new SolanaWallet(web3auth.ed25519Key, connection);
-    const hyperWallet = new HyperWallet(solanaWallet);
-    await hyperWallet.init();
-    const currentWallet =
-      useSettingsStore.getState().defaultWallet == "hyper"
-        ? hyperWallet
-        : solanaWallet;
+    const privateKey = web3auth.ed25519Key;
+    await get().initWallet(privateKey);
     set({
-      solanaWallet,
-      hyperWallet,
-      currentWallet,
       creatingWallet: false,
     });
   },
@@ -167,3 +147,15 @@ export const useAppStore = create<AppState>((set, get) => ({
     });
   },
 }));
+
+async function saveSettings(newSettings: any) {
+  const savedSettings = await load("settings");
+  return save("settings", {
+    ...savedSettings,
+    ...newSettings,
+  });
+}
+
+async function getSettings() {
+  return load("settings");
+}

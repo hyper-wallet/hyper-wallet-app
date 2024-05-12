@@ -55,10 +55,9 @@ export type NftMetadata = {
 };
 
 export type WalletTransaction = {
-  icon: string;
-  title: string;
-  subtitle: string;
-  value: string;
+  name: string;
+  signature: string;
+  err: unknown;
 };
 
 export type WalletSettings = {

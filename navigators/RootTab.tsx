@@ -37,7 +37,7 @@ const BottomTab = createBottomTabNavigator<RootTabParamList>();
 export const RootTab = () => {
   const theme = useTheme();
   return (
-    <BottomTab.Navigator>
+    <BottomTab.Navigator detachInactiveScreens={false}>
       <BottomTab.Screen
         name="Wallet"
         component={WalletScreen}

@@ -6,8 +6,14 @@ import * as Linking from "expo-linking";
 import { api, connection, privateKeyProvider, web3auth } from "@/services";
 import { LOGIN_PROVIDER } from "@web3auth/react-native-sdk";
 import { IWallet } from "@/lib/interfaces";
-import { loadString, saveString } from "@/utils";
+import { clear, load, loadString, save, saveString } from "@/utils";
 import { useSettingsStore } from "./settingsStore";
+import {
+  WalletNft,
+  WalletSettings,
+  WalletToken,
+  WalletTransaction,
+} from "@/types";
 
 const resolvedRedirectUrl =
   Constants.appOwnership == AppOwnership.Expo
@@ -16,11 +22,19 @@ const resolvedRedirectUrl =
 
 interface AppState {
   initialized: boolean;
+  authenticated: boolean;
   solanaWallet: SolanaWallet | null;
   hyperWallet: HyperWallet | null;
   currentWallet: IWallet | null;
   creatingWallet: boolean;
-  init: () => void;
+  walletTokens: WalletToken[];
+  walletNfts: WalletNft[];
+  walletTransactions: WalletTransaction[];
+  walletSettings: WalletSettings;
+  init: () => Promise<void>;
+  getTokens: () => Promise<void>;
+  getNfts: () => Promise<void>;
+  getTransactions: () => Promise<void>;
   setCurrentWallet: (wallet: IWallet) => void;
   importPrivateKey: (privateKey: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
@@ -28,25 +42,39 @@ interface AppState {
   removeWallet: () => void;
 }
 
-export const useAppStore = create<AppState>((set) => ({
+export const useAppStore = create<AppState>((set, get) => ({
   initialized: false,
+  authenticated: false,
   solanaWallet: null,
   hyperWallet: null,
   currentWallet: null,
   creatingWallet: false,
+  walletTokens: [],
+  walletNfts: [],
+  walletTransactions: [],
+  walletSettings: {
+    defaultWallet: "hyper",
+  },
   init: async () => {
-    await useSettingsStore.getState().init();
+    // Recover settings
+    const savedSettings = await load("settings");
+    if (!savedSettings) {
+      save("settings", { defaultWallet: "hyper" });
+    } else {
+      set({ walletSettings: savedSettings });
+    }
+
+    // Init Stores and Services
     await web3auth.init();
+
+    // Recover wallet if existed
     // Get private key from web3auth or local storage
     const privateKey = web3auth.ed25519Key || (await loadString("private-key"));
     if (privateKey) {
       const solanaWallet = new SolanaWallet(privateKey, connection);
       const hyperWallet = new HyperWallet(solanaWallet);
       await hyperWallet.init();
-      const currentWallet =
-        useSettingsStore.getState().defaultWallet == "hyper"
-          ? hyperWallet
-          : solanaWallet;
+      const currentWallet = solanaWallet;
       set({
         solanaWallet,
         hyperWallet,
@@ -64,12 +92,14 @@ export const useAppStore = create<AppState>((set) => ({
   },
   importPrivateKey: async (privateKey: string) => {
     set({ creatingWallet: true });
+
+    // Create Wallet phase
     const solanaWallet = new SolanaWallet(privateKey, connection);
     const hyperWallet = new HyperWallet(solanaWallet);
     await hyperWallet.init();
     saveString("private-key", privateKey);
     const currentWallet =
-      useSettingsStore.getState().defaultWallet == "hyper"
+      get().walletSettings.defaultWallet == "hyper"
         ? hyperWallet
         : solanaWallet;
     set({
@@ -81,12 +111,10 @@ export const useAppStore = create<AppState>((set) => ({
   },
   loginWithGoogle: async () => {
     set({ creatingWallet: true });
-    if (!web3auth.ed25519Key) {
-      await web3auth.login({
-        loginProvider: LOGIN_PROVIDER.GOOGLE,
-        redirectUrl: resolvedRedirectUrl,
-      });
-    }
+    await web3auth.login({
+      loginProvider: LOGIN_PROVIDER.GOOGLE,
+      redirectUrl: resolvedRedirectUrl,
+    });
     const solanaWallet = new SolanaWallet(web3auth.ed25519Key, connection);
     const hyperWallet = new HyperWallet(solanaWallet);
     await hyperWallet.init();
@@ -105,7 +133,35 @@ export const useAppStore = create<AppState>((set) => ({
     return web3auth.logout();
   },
   removeWallet: () => {
-    web3auth.logout();
-    set({ solanaWallet: null, hyperWallet: null, currentWallet: null });
+    try {
+      web3auth.logout();
+      set({ solanaWallet: null, hyperWallet: null, currentWallet: null });
+    } catch (e) {
+      console.log(e);
+    }
+  },
+  reset: async () => {
+    await clear();
+  },
+  getTokens: async () => {
+    const currentWallet = get().currentWallet;
+    if (!currentWallet) return;
+
+    const tokens = await currentWallet.getTokens();
+    set({ walletTokens: tokens });
+  },
+  getNfts: async () => {
+    const currentWallet = get().currentWallet;
+    if (!currentWallet) return;
+
+    const nfts = await currentWallet.getNfts();
+    set({ walletNfts: nfts });
+  },
+  getTransactions: async () => {
+    const currentWallet = get().currentWallet;
+    if (!currentWallet) return;
+    currentWallet.getTransactions().then((data) => {
+      set({ walletTransactions: data });
+    });
   },
 }));

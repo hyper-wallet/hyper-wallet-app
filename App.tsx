@@ -4,10 +4,11 @@ import { StatusBar } from "expo-status-bar";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { ThemeProvider } from "styled-components/native";
 import { darkTheme, lightTheme, Theme } from "@/theme";
-import { AppStack } from "@/navigators";
+import { AppStack, CreateWalletStack } from "@/navigators";
 import { View } from "react-native";
 import { useEffect } from "react";
 import { useAppStore } from "@/stores/appStore";
+import "react-native-reanimated";
 
 export default function App() {
   const theme: Theme = lightTheme;
@@ -21,12 +22,12 @@ export default function App() {
     return <View />;
   }
 
+  const hasWallet = !!appStore.currentWallet;
+
   return (
     <ThemeProvider theme={theme}>
       <NavigationContainer theme={theme}>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <AppStack />
-        </GestureHandlerRootView>
+        {hasWallet ? <AppStack /> : <CreateWalletStack />}
       </NavigationContainer>
       <StatusBar style="dark" />
     </ThemeProvider>

@@ -7,10 +7,12 @@ import { useTheme } from "@/hooks";
 import { useAppStore } from "@/stores/appStore";
 import { SecuritySection } from "./SecuritySection";
 import { BackupSection } from "./BackupSection";
+import { useNavigation } from "@react-navigation/native";
 
 export const SettingsScreen: FC<RootTabScreenProps<"NFT">> = () => {
   const theme = useTheme();
   const { removeWallet } = useAppStore();
+
   return (
     <View style={styles.container}>
       <ScrollView>

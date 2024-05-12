@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -9,9 +9,9 @@ import {
 import { RootTabScreenProps } from "@/navigators";
 import { styled } from "styled-components/native";
 import { NftItem } from "./NftItem";
-import { useWalletNfts } from "@/hooks";
 import { EmptyState } from "@/components";
 import { WalletNft } from "@/types";
+import { useAppStore } from "@/stores/appStore";
 
 const WINDOW_WIDTH = Dimensions.get("window").width;
 
@@ -29,7 +29,18 @@ const Gallery = styled.View`
 `;
 
 export const NftScreen: FC<RootTabScreenProps<"NFT">> = ({ navigation }) => {
-  const { refreshing, refresh, nfts } = useWalletNfts();
+  const [refreshing, setRefreshing] = useState(false);
+  const { walletNfts, getNfts } = useAppStore();
+
+  useEffect(() => {
+    refresh();
+  }, []);
+
+  async function refresh() {
+    setRefreshing(true);
+    await getNfts();
+    setRefreshing(false);
+  }
 
   const viewNFTDetails = (nft: WalletNft) => {
     navigation.navigate("ModalStack", {
@@ -47,14 +58,14 @@ export const NftScreen: FC<RootTabScreenProps<"NFT">> = ({ navigation }) => {
           <RefreshControl refreshing={refreshing} onRefresh={refresh} />
         }
       >
-        {!refreshing && !nfts.length && (
+        {!refreshing && !walletNfts.length && (
           <EmptyState
             label="You don't have any NFTs yet"
             style={{ marginTop: 16 }}
           />
         )}
         <Gallery>
-          {nfts.map((nft) => (
+          {walletNfts.map((nft) => (
             <NftItem
               key={nft.metadata.mint}
               size={NFT_SIZE}

@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -11,7 +11,7 @@ import { styled } from "styled-components/native";
 import { TokenItem } from "./TokenItem";
 import { Button } from "./Button";
 import { WalletToken } from "@/types";
-import { useWalletTokens } from "@/hooks";
+import { useAppStore } from "@/stores/appStore";
 
 const Balance = styled.Text`
   font-weight: 600;
@@ -31,7 +31,13 @@ const ButtonsRow = styled.View`
 export const WalletScreen: FC<RootTabScreenProps<"Wallet">> = ({
   navigation,
 }) => {
-  const { refresh, refreshing, usdBalance, tokens } = useWalletTokens();
+  const [refreshing, setRefreshing] = useState(false);
+  const { walletTokens, getTokens } = useAppStore();
+
+  useEffect(() => {
+    refresh();
+  }, []);
+
   const viewTokenDetail = (token: WalletToken) => {
     navigation.navigate("ModalStack", {
       screen: "TokenDetails",
@@ -44,9 +50,6 @@ export const WalletScreen: FC<RootTabScreenProps<"Wallet">> = ({
   const selectSendToken = () => {
     navigation.navigate("ModalStack", {
       screen: "SelectSendToken",
-      params: {
-        tokens,
-      },
     });
   };
 
@@ -64,6 +67,12 @@ export const WalletScreen: FC<RootTabScreenProps<"Wallet">> = ({
     Linking.openURL("https://www.moonpay.com/buy/sol");
   };
 
+  async function refresh() {
+    setRefreshing(true);
+    await getTokens();
+    setRefreshing(false);
+  }
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -71,7 +80,7 @@ export const WalletScreen: FC<RootTabScreenProps<"Wallet">> = ({
           <RefreshControl refreshing={refreshing} onRefresh={refresh} />
         }
       >
-        <Balance>${usdBalance.toFixed(2)}</Balance>
+        {/* <Balance>${usdBalance.toFixed(2)}</Balance> */}
         <ButtonsRow>
           <Button
             iconName="ri-arrow-right-up-line"
@@ -90,7 +99,7 @@ export const WalletScreen: FC<RootTabScreenProps<"Wallet">> = ({
           />
           <Button iconName="ri-add-line" label="Buy" onPress={buy} />
         </ButtonsRow>
-        {tokens.map((token) => (
+        {walletTokens.map((token) => (
           <TokenItem
             key={token.metadata.mint_address}
             {...token}

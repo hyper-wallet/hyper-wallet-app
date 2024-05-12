@@ -60,3 +60,7 @@ export type WalletTransaction = {
   subtitle: string;
   value: string;
 };
+
+export type WalletSettings = {
+  defaultWallet: "hyper" | "solana";
+};

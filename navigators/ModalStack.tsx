@@ -60,9 +60,7 @@ export type ModalStackParamList = {
   };
   RecoveryPhrase: undefined;
   PrivateKey: undefined;
-  SelectSendToken: {
-    tokens: WalletToken[];
-  };
+  SelectSendToken: undefined;
   Otp: undefined;
   Whitelist: undefined;
 };

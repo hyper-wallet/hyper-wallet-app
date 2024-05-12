@@ -38,11 +38,6 @@ export const CreateWalletStack = () => {
         options={{ title: "Import Wallet" }}
       />
       <Stack.Screen
-        name="SelectGenerateMethod"
-        component={SelectImportMethodScreen}
-        options={{ title: "Create Wallet" }}
-      />
-      <Stack.Screen
         name="ImportPrivateKey"
         component={ImportPrivateKeyScreen}
         options={{ title: "Import with Private Key" }}

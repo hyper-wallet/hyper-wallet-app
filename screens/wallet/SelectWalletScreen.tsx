@@ -59,14 +59,14 @@ export const SelectWalletScreen: FC<
   return (
     <Container>
       <SolanaWalletCard
-        active={!currentWallet.isHyperWallet}
+        active={!currentWallet?.isHyperWallet}
         onPress={activateSolanaWallet}
       >
         <Title>Solana Wallet</Title>
         <Subtitle>This is your Solana wallet</Subtitle>
       </SolanaWalletCard>
       <HyperWalletCard
-        active={currentWallet.isHyperWallet}
+        active={currentWallet?.isHyperWallet}
         onPress={activateHyperWallet}
       >
         <Title>Hyper Wallet</Title>

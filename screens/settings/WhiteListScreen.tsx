@@ -46,7 +46,7 @@ export const WhiteListScreen: FC<ModalStackScreenProps<"Whitelist">> = () => {
   const { currentWallet } = appStore;
   const [enabled, setEnabled] = useState(
     currentWallet instanceof HyperWallet
-      ? currentWallet.whitelistEnabled
+      ? currentWallet?.whitelistEnabled
       : false
   );
 
@@ -58,9 +58,9 @@ export const WhiteListScreen: FC<ModalStackScreenProps<"Whitelist">> = () => {
 
   const addresses =
     currentWallet instanceof HyperWallet
-      ? currentWallet.whitelistedAddresses
+      ? currentWallet?.whitelistedAddresses
       : [];
-  if (!currentWallet.isHyperWallet) {
+  if (!currentWallet?.isHyperWallet) {
     return (
       <View>
         <Space height={16} />

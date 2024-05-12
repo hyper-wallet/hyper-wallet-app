@@ -46,17 +46,17 @@ export const WalletAddressScreen: FC<
   const { currentWallet } = appStore;
   const insets = useSafeAreaInsets();
   const copyAddress = () => {
-    copyStringToClipboard(currentWallet.address).then(() => {
+    copyStringToClipboard(currentWallet?.address).then(() => {
       Alert.alert("Copied address");
     });
   };
   return (
     <Container>
       <QRCodeContainer>
-        <QRCode content={currentWallet.address} />
+        <QRCode content={currentWallet?.address} />
       </QRCodeContainer>
       <InputContainer>
-        <Input>{currentWallet.address}</Input>
+        <Input>{currentWallet?.address}</Input>
       </InputContainer>
       <Subtitle>
         This is a Solana wallet. Please only send assets on the Solana

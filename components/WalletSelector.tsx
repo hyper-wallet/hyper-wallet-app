@@ -36,9 +36,9 @@ export const WalletSelector = () => {
 
   return (
     <Container onPress={selectWallet}>
-      <WalletIcon source={{ uri: currentWallet.icon }} />
+      <WalletIcon source={{ uri: currentWallet?.icon }} />
       <Title>
-        {currentWallet.isHyperWallet ? "Hyper Wallet" : "Solana Wallet"}
+        {currentWallet?.isHyperWallet ? "Hyper Wallet" : "Solana Wallet"}
       </Title>
       <Icon name="ri-arrow-down-s-line" />
     </Container>

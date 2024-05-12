@@ -11,7 +11,7 @@ import {
   SendTokenResultScreen,
   WhiteListScreen,
   SendTokenOtpScreen,
-  OtpScreen,
+  OtpSettingScreen,
 } from "@/screens";
 import { WalletNft, WalletToken } from "@/types";
 import {
@@ -61,8 +61,8 @@ export type ModalStackParamList = {
   RecoveryPhrase: undefined;
   PrivateKey: undefined;
   SelectSendToken: undefined;
-  Otp: undefined;
-  Whitelist: undefined;
+  OtpSetting: undefined;
+  WhitelistSetting: undefined;
 };
 
 export type ModalStackScreenProps<T extends keyof ModalStackParamList> =
@@ -145,8 +145,8 @@ export const ModalStack = () => {
         options={{ title: "Recovery Phrase" }}
       />
       <Stack.Screen
-        name="Otp"
-        component={OtpScreen}
+        name="OtpSetting"
+        component={OtpSettingScreen}
         options={{ title: "OTP" }}
       />
       <Stack.Screen

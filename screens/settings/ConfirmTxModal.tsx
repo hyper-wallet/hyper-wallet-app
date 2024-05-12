@@ -1,10 +1,11 @@
-import { forwardRef } from "react";
+import { forwardRef, useState } from "react";
 import { Modalize } from "react-native-modalize";
 import { ModalSheet, Title, Subtitle, Button, Space } from "@/components";
 import styled from "styled-components/native";
 import { middleEllipsis } from "@/utils";
 import { useAppStore } from "@/stores/appStore";
 import { HyperWallet } from "@/lib/HyperWallet";
+import { Alert } from "react-native";
 
 const Row = styled.View`
   flex-direction: row;
@@ -21,24 +22,29 @@ const Card = styled.View`
 type Method =
   | "enableOtp"
   | "disableOtp"
+  | "setupOtp"
+  | "resetOtp"
   | "enableWhitelist"
   | "disableWhitelist";
 
 const subtitleByMethod: Record<Method, string> = {
   enableOtp: "Enable OTP",
   disableOtp: "Disable OTP",
+  setupOtp: "Setup OTP",
+  resetOtp: "Reset OTP",
   enableWhitelist: "Enable Whitelist",
   disableWhitelist: "Disable Whitelist",
 };
 
 type ConfirmTxModalProps = {
   method: Method;
-  onRejected: () => void;
-  onConfirmed: () => void;
+  onRejected?: () => void;
+  onConfirmed?: () => void;
 };
 
 export const ConfirmTxModal = forwardRef<Modalize, ConfirmTxModalProps>(
   (props, ref) => {
+    const [loading, setLoadinng] = useState(false);
     const { method, onRejected, onConfirmed } = props;
     const currentWallet = useAppStore().currentWallet as HyperWallet;
 
@@ -47,7 +53,7 @@ export const ConfirmTxModal = forwardRef<Modalize, ConfirmTxModalProps>(
     function close() {
       //@ts-ignore
       ref.current?.close();
-      onRejected();
+      onRejected && onRejected();
     }
 
     async function confirmTx() {
@@ -59,6 +65,12 @@ export const ConfirmTxModal = forwardRef<Modalize, ConfirmTxModalProps>(
         case "disableOtp":
           promise = currentWallet.disableOtp();
           break;
+        case "setupOtp":
+          promise = currentWallet.setupOtp();
+          break;
+        case "resetOtp":
+          promise = currentWallet.setupOtp();
+          break;
         case "enableWhitelist":
           promise = currentWallet.enableWhitelist();
           break;
@@ -66,13 +78,17 @@ export const ConfirmTxModal = forwardRef<Modalize, ConfirmTxModalProps>(
           promise = currentWallet.disableWhitelist();
           break;
       }
+      setLoadinng(true);
       promise
         .then((signature) => {
-          console.log("🚀 ~ .then ~ signature:", signature);
-          onConfirmed();
+          onConfirmed && onConfirmed();
         })
-        .catch()
-        .finally(close);
+        .catch((e) => {
+          Alert.alert(e);
+        })
+        .finally(() => {
+          setLoadinng(false);
+        });
     }
 
     return (

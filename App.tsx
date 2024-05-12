@@ -26,10 +26,12 @@ export default function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <NavigationContainer theme={theme}>
-        {hasWallet ? <AppStack /> : <CreateWalletStack />}
-      </NavigationContainer>
-      <StatusBar style="dark" />
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <NavigationContainer theme={theme}>
+          {hasWallet ? <AppStack /> : <CreateWalletStack />}
+        </NavigationContainer>
+        <StatusBar style="dark" />
+      </GestureHandlerRootView>
     </ThemeProvider>
   );
 }

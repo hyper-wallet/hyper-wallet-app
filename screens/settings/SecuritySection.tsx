@@ -76,15 +76,25 @@ export const SecuritySection = () => {
     });
   }
 
+  function viewOtpSetting() {
+    //@ts-ignore
+    navigation.navigate("ModalStack", {
+      screen: "OtpSetting",
+    });
+  }
+
   return (
     <Container>
       <SectionTitle>Security</SectionTitle>
       <Space height={8} />
       <Card>
-        <Row>
-          <Title>OTP</Title>
-          <Switch value={otpEnabled} onValueChange={changeOtpSetting} />
-        </Row>
+        <TouchableOpacity onPress={viewOtpSetting}>
+          <Row>
+            <Title>OTP</Title>
+            {/* <Switch value={otpEnabled} onValueChange={changeOtpSetting} /> */}
+            <Icon name="ri-arrow-right-s-line" size={20} />
+          </Row>
+        </TouchableOpacity>
         <Divider />
         <Row>
           <Title>Whitelist</Title>

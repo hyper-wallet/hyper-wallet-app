@@ -13,9 +13,13 @@ const Container = styled.View`
   padding: 0 16px;
 `;
 
-export const OtpScreen: FC<ModalStackScreenProps<"Otp">> = () => {
+export const OtpSettingScreen: FC<ModalStackScreenProps<"OtpSetting">> = () => {
   const { currentWallet } = useAppStore();
-  const confirmTxModal = useRef<Modalize>(null);
+  const disableOtpModal = useRef<Modalize>(null);
+  const enableOtpModal = useRef<Modalize>(null);
+  const setupOtpModal = useRef<Modalize>(null);
+  const resetOtpModal = useRef<Modalize>(null);
+
   if (!(currentWallet instanceof HyperWallet)) {
     return <View />;
   }
@@ -23,15 +27,19 @@ export const OtpScreen: FC<ModalStackScreenProps<"Otp">> = () => {
   const { otpEnabled, otpDidSetup } = currentWallet;
 
   function setupOtp() {
-    confirmTxModal.current?.open();
+    setupOtpModal.current?.open();
   }
 
   function enableOtp() {
-    confirmTxModal.current?.open();
+    enableOtpModal.current?.open();
   }
 
   function disableOtp() {
-    confirmTxModal.current?.open();
+    disableOtpModal.current?.open();
+  }
+
+  function resetOtp() {
+    resetOtpModal.current?.open();
   }
 
   const otpStatus = otpDidSetup
@@ -46,14 +54,27 @@ export const OtpScreen: FC<ModalStackScreenProps<"Otp">> = () => {
       <Space />
       {otpDidSetup ? (
         otpEnabled ? (
-          <Button label="Disable" onPress={disableOtp} />
+          <>
+            <Button variant="secondary" label="Reset" onPress={resetOtp} />
+            <Space height={16} />
+            <Button label="Disable" onPress={disableOtp} />
+          </>
         ) : (
-          <Button label="Enable" onPress={enableOtp} />
+          <>
+            <Button variant="secondary" label="Reset" onPress={resetOtp} />
+            <Space height={16} />
+            <Button label="Enable" onPress={enableOtp} />
+          </>
         )
       ) : (
         <Button label="Setup" onPress={setupOtp} />
       )}
+      <Space height={16} />
       <Space insetBottom />
+      <ConfirmTxModal ref={enableOtpModal} method="enableOtp" />
+      <ConfirmTxModal ref={disableOtpModal} method="disableOtp" />
+      <ConfirmTxModal ref={setupOtpModal} method="setupOtp" />
+      <ConfirmTxModal ref={resetOtpModal} method="resetOtp" />
     </Container>
   );
 };

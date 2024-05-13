@@ -1,5 +1,5 @@
 import { TouchableOpacity } from "react-native";
-import { Icon, SectionTitle, Space, Title } from "@/components";
+import { Icon, SectionTitle, Space, Subtitle, Title } from "@/components";
 import styled from "styled-components/native";
 import { useNavigation } from "@react-navigation/native";
 import { useStores } from "@/hooks";
@@ -18,7 +18,6 @@ const Card = styled.View`
 const Row = styled.View`
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
   height: 48px;
   padding: 0 16px;
 `;
@@ -28,8 +27,13 @@ const Divider = styled.View`
   background-color: white;
 `;
 
+const BadgeContainer = styled.View``;
+
+const BadgeTitle = styled.Text``;
+
 export const SecuritySection = () => {
   const navigation = useNavigation();
+  const { hyperWalletStore } = useStores();
 
   function viewWhitelistSetting() {
     //@ts-ignore
@@ -45,6 +49,13 @@ export const SecuritySection = () => {
     });
   }
 
+  const otpStatus = hyperWalletStore.account?.otpEnabled
+    ? "Enabled"
+    : "Disabled";
+  const whitelistStatus = hyperWalletStore.account?.whitelistEnabled
+    ? "Enabled"
+    : "Disabled";
+
   return (
     <Container>
       <SectionTitle>Security</SectionTitle>
@@ -52,15 +63,23 @@ export const SecuritySection = () => {
       <Card>
         <TouchableOpacity onPress={viewOtpSetting}>
           <Row>
+            <Icon name="ri-shield-keyhole-line" size={20} />
+            <Space width={4} />
             <Title>OTP</Title>
             {/* <Switch value={otpEnabled} onValueChange={changeOtpSetting} /> */}
+            <Space />
+            <Subtitle>{otpStatus}</Subtitle>
             <Icon name="ri-arrow-right-s-line" size={20} />
           </Row>
         </TouchableOpacity>
         <Divider />
         <TouchableOpacity onPress={viewWhitelistSetting}>
           <Row>
+            <Icon name="ri-contacts-book-line" size={20} />
+            <Space width={4} />
             <Title>Whitelist</Title>
+            <Space />
+            <Subtitle>{whitelistStatus}</Subtitle>
             <Icon name="ri-arrow-right-s-line" size={20} />
           </Row>
         </TouchableOpacity>

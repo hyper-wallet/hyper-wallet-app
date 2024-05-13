@@ -1,39 +1,56 @@
 import { FC } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
+import { View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { RootTabScreenProps } from "@/navigators";
 import { SettingItem } from "./SettingItem";
-import { Divider, Space } from "@/components";
+import { Divider, Space, Icon, Title } from "@/components";
 import { useTheme } from "@/hooks";
 import { useAppStore } from "@/stores/appStore";
 import { SecuritySection } from "./SecuritySection";
 import { BackupSection } from "./BackupSection";
-import { useNavigation } from "@react-navigation/native";
+import styled from "styled-components/native";
+import { palette } from "@/theme/palette";
+
+const Container = styled.View`
+  flex: 1;
+`;
+
+const Card = styled.View`
+  border-radius: 16px;
+  background-color: rgba(0, 0, 0, 0.03);
+  padding: 4px 0;
+  margin: 0px 16px;
+`;
+
+const Row = styled.View`
+  flex-direction: row;
+  align-items: center;
+  height: 48px;
+  padding: 0 16px;
+`;
 
 export const SettingsScreen: FC<RootTabScreenProps<"NFT">> = () => {
   const theme = useTheme();
   const { removeWallet } = useAppStore();
 
   return (
-    <View style={styles.container}>
-      <ScrollView>
-        <Space height={16} />
-        <BackupSection />
-        <SecuritySection />
-        <Divider />
-        <SettingItem
-          iconName="ri-delete-bin-7-line"
-          title="Remove Wallet"
-          color={theme.error.active}
-          disableRightArrow
-          onPress={removeWallet}
-        />
-      </ScrollView>
-    </View>
+    <Container>
+      <Space height={16} />
+      <BackupSection />
+      <SecuritySection />
+      <Card>
+        <TouchableOpacity onPress={removeWallet}>
+          <Row>
+            <Icon
+              name="ri-delete-bin-7-line"
+              size={20}
+              color={palette.red[50]}
+            />
+            <Space width={4} />
+            <Title style={{ color: palette.red[50] }}>Remove wallet</Title>
+            <Space />
+          </Row>
+        </TouchableOpacity>
+      </Card>
+    </Container>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});

@@ -1,11 +1,16 @@
 import { forwardRef, useState } from "react";
 import { Modalize } from "react-native-modalize";
-import { ModalSheet, Title, Subtitle, Button, Space } from "@/components";
+import {
+  ModalSheet,
+  Title,
+  Subtitle,
+  Button,
+  Space,
+  SectionTitle,
+} from "@/components";
 import styled from "styled-components/native";
-import { middleEllipsis } from "@/utils";
-import { useAppStore } from "@/stores/appStore";
-import { HyperWallet } from "@/lib/HyperWallet";
 import { Alert } from "react-native";
+import { useStores } from "@/hooks";
 
 const Row = styled.View`
   flex-direction: row;
@@ -46,7 +51,7 @@ export const ConfirmTxModal = forwardRef<Modalize, ConfirmTxModalProps>(
   (props, ref) => {
     const [loading, setLoadinng] = useState(false);
     const { method, onRejected, onConfirmed } = props;
-    const currentWallet = useAppStore().currentWallet as HyperWallet;
+    const { hyperWalletStore } = useStores();
 
     const subtitle = subtitleByMethod[method];
 
@@ -58,24 +63,28 @@ export const ConfirmTxModal = forwardRef<Modalize, ConfirmTxModalProps>(
 
     async function confirmTx() {
       let promise: Promise<any>;
+      if (!hyperWalletStore.wallet) {
+        // TODO: handle error
+        return;
+      }
       switch (method) {
         case "enableOtp":
-          promise = currentWallet.enableOtp();
+          promise = hyperWalletStore.wallet.enableOtp();
           break;
         case "disableOtp":
-          promise = currentWallet.disableOtp();
+          promise = hyperWalletStore.wallet.disableOtp();
           break;
         case "setupOtp":
-          promise = currentWallet.setupOtp();
+          promise = hyperWalletStore.wallet.setupOtp();
           break;
         case "resetOtp":
-          promise = currentWallet.setupOtp();
+          promise = hyperWalletStore.wallet.setupOtp();
           break;
         case "enableWhitelist":
-          promise = currentWallet.enableWhitelist();
+          promise = hyperWalletStore.wallet.enableWhitelist();
           break;
         case "disableWhitelist":
-          promise = currentWallet.disableWhitelist();
+          promise = hyperWalletStore.wallet.disableWhitelist();
           break;
       }
       setLoadinng(true);
@@ -93,15 +102,15 @@ export const ConfirmTxModal = forwardRef<Modalize, ConfirmTxModalProps>(
 
     return (
       <ModalSheet ref={ref}>
-        <Title>Confirm transaction</Title>
+        <SectionTitle>Confirm transaction</SectionTitle>
         <Space height={16} />
         <Card>
           <Title>Method</Title>
           <Subtitle>{subtitle}</Subtitle>
           <Space height={16} />
-          <Title>Wallet</Title>
-          <Subtitle>
-            Hyper Wallet: {middleEllipsis(currentWallet.address)}
+          <Title>Hyper Wallet</Title>
+          <Subtitle numberOfLines={1} ellipsizeMode="middle">
+            {hyperWalletStore.wallet?.address}
           </Subtitle>
         </Card>
         <Space height={16} />

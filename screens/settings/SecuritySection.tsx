@@ -1,12 +1,8 @@
-import { useRef, useState } from "react";
-import { Switch, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity } from "react-native";
 import { Icon, SectionTitle, Space, Title } from "@/components";
-import { HyperWallet } from "@/lib/HyperWallet";
-import { useAppStore } from "@/stores/appStore";
 import styled from "styled-components/native";
 import { useNavigation } from "@react-navigation/native";
-import { Modalize } from "react-native-modalize";
-import { ConfirmTxModal } from "./ConfirmTxModal";
+import { useStores } from "@/hooks";
 
 const Container = styled.View`
   padding: 16px;
@@ -34,40 +30,6 @@ const Divider = styled.View`
 
 export const SecuritySection = () => {
   const navigation = useNavigation();
-  const appStore = useAppStore();
-  const confirmEnableOtpTxModal = useRef<Modalize>();
-  const confirmDisableOtpTxModal = useRef<Modalize>();
-  const confirmEnableWhitelistTxModal = useRef<Modalize>();
-  const confirmDisableWhitelistTxModal = useRef<Modalize>();
-  const { currentWallet } = appStore;
-  const [otpEnabled, setOtpEnabled] = useState(
-    currentWallet instanceof HyperWallet ? currentWallet.otpEnabled : false
-  );
-  const [whitelistEnabled, setWhitelistEnabled] = useState(
-    currentWallet instanceof HyperWallet
-      ? currentWallet.whitelistEnabled
-      : false
-  );
-
-  if (!(currentWallet instanceof HyperWallet)) {
-    return <View />;
-  }
-
-  function changeOtpSetting(enabled) {
-    if (enabled) {
-      confirmEnableOtpTxModal.current?.open();
-    } else {
-      confirmDisableOtpTxModal.current?.open();
-    }
-  }
-
-  function changeWhitelistSetting(enabled) {
-    if (enabled) {
-      confirmEnableWhitelistTxModal.current?.open();
-    } else {
-      confirmDisableWhitelistTxModal.current?.open();
-    }
-  }
 
   function viewWhitelistSetting() {
     //@ts-ignore

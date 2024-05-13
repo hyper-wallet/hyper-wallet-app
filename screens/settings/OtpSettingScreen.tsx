@@ -1,12 +1,11 @@
 import { Button, Space, Title } from "@/components";
-import { HyperWallet } from "@/lib/HyperWallet";
 import { ModalStackScreenProps } from "@/navigators";
-import { useAppStore } from "@/stores/appStore";
 import { FC, useRef } from "react";
 import { View } from "react-native";
 import { Modalize } from "react-native-modalize";
 import styled from "styled-components/native";
 import { ConfirmTxModal } from "./ConfirmTxModal";
+import { useStores } from "@/hooks";
 
 const Container = styled.View`
   flex: 1;
@@ -14,17 +13,16 @@ const Container = styled.View`
 `;
 
 export const OtpSettingScreen: FC<ModalStackScreenProps<"OtpSetting">> = () => {
-  const { currentWallet } = useAppStore();
+  const { appStore, hyperWalletStore, solanaWalletStore } = useStores();
   const disableOtpModal = useRef<Modalize>(null);
   const enableOtpModal = useRef<Modalize>(null);
   const setupOtpModal = useRef<Modalize>(null);
   const resetOtpModal = useRef<Modalize>(null);
 
-  if (!(currentWallet instanceof HyperWallet)) {
-    return <View />;
-  }
+  if (!hyperWalletStore.account) return <View />;
 
-  const { otpEnabled, otpDidSetup } = currentWallet;
+  const { otpEnabled, otpInitTime, otpRoot } = hyperWalletStore.account;
+  const otpDidSetup = !!otpInitTime && !!otpRoot;
 
   function setupOtp() {
     setupOtpModal.current?.open();
@@ -71,8 +69,20 @@ export const OtpSettingScreen: FC<ModalStackScreenProps<"OtpSetting">> = () => {
       )}
       <Space height={16} />
       <Space insetBottom />
-      <ConfirmTxModal ref={enableOtpModal} method="enableOtp" />
-      <ConfirmTxModal ref={disableOtpModal} method="disableOtp" />
+      <ConfirmTxModal
+        ref={enableOtpModal}
+        method="enableOtp"
+        onConfirmed={() => {
+          hyperWalletStore.setAccount({ otpEnabled: true });
+        }}
+      />
+      <ConfirmTxModal
+        ref={disableOtpModal}
+        method="disableOtp"
+        onConfirmed={() => {
+          hyperWalletStore.setAccount({ otpEnabled: false });
+        }}
+      />
       <ConfirmTxModal ref={setupOtpModal} method="setupOtp" />
       <ConfirmTxModal ref={resetOtpModal} method="resetOtp" />
     </Container>

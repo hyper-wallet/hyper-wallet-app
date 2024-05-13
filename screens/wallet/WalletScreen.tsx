@@ -11,6 +11,7 @@ import { styled } from "styled-components/native";
 import { TokenItem } from "./TokenItem";
 import { Button } from "./Button";
 import { useWalletTokens } from "@/hooks";
+import { WalletToken } from "@/types";
 
 const Balance = styled.Text`
   font-weight: 600;
@@ -37,11 +38,11 @@ export const WalletScreen: FC<RootTabScreenProps<"Wallet">> = ({
     return prev + balance * price.usd;
   }, 0);
 
-  function viewTokenDetail(mint_address: string) {
+  function viewTokenDetail(token: WalletToken) {
     navigation.navigate("ModalStack", {
       screen: "TokenDetails",
       params: {
-        mint_address,
+        token,
       },
     });
   }
@@ -96,7 +97,7 @@ export const WalletScreen: FC<RootTabScreenProps<"Wallet">> = ({
           <TokenItem
             key={token.metadata.mint_address}
             {...token}
-            onPress={() => viewTokenDetail(token.metadata.mint_address)}
+            onPress={() => viewTokenDetail(token)}
           />
         ))}
       </ScrollView>

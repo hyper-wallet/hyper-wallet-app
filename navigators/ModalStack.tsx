@@ -22,27 +22,27 @@ import {
 export type ModalStackParamList = {
   SelectWallet: undefined;
   TokenDetails: {
-    mint_address: string;
+    token: WalletToken;
   };
   NFTDetails: {
     nft: WalletNft;
   };
   WalletAddress: undefined;
   SendToken: {
-    mint_address: string;
+    token: WalletToken;
   };
   SendTokenReview: {
-    mint_address: string;
+    token: WalletToken;
     toAddress: string;
     amount: number;
   };
   SendTokenOtp: {
-    mint_address: string;
+    token: WalletToken;
     toAddress: string;
     amount: number;
   };
   SendTokenResult: {
-    mint_address: string;
+    token: WalletToken;
     toAddress: string;
     amount: number;
     otp?: string;

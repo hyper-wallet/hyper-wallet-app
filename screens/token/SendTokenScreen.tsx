@@ -79,14 +79,10 @@ export const SendTokenScreen: FC<ModalStackScreenProps<"SendToken">> = (
   const { walletTokens } = useAppStore();
 
   const { navigation, route } = props;
-  const { mint_address } = route.params;
-  const token = walletTokens.get(mint_address);
-  if (!token) {
-    return null;
-  }
+  const { token } = route.params;
 
   const { balance, metadata, price } = token;
-  const { name, symbol, image } = metadata;
+  const { name, symbol, image, mint_address } = metadata;
 
   function paste() {
     fetchStringFromClipboard().then(setRecipientAddress);
@@ -94,7 +90,7 @@ export const SendTokenScreen: FC<ModalStackScreenProps<"SendToken">> = (
 
   function reviewSend() {
     navigation.navigate("SendTokenReview", {
-      mint_address,
+      token,
       toAddress: recipientAddress,
       amount: parseFloat(amount.replace(",", ".")),
     });

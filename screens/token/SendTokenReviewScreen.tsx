@@ -4,8 +4,7 @@ import { ModalStackScreenProps } from "@/navigators";
 import { styled } from "styled-components/native";
 import { Image } from "expo-image";
 import { middleEllipsis } from "@/utils";
-import { useAppStore } from "@/stores/appStore";
-import { HyperWallet } from "@/lib/HyperWallet";
+import { useStores } from "@/hooks";
 
 const Container = styled.View`
   flex: 1;
@@ -68,27 +67,23 @@ export const SendTokenReviewScreen: FC<
   ModalStackScreenProps<"SendTokenReview">
 > = (props) => {
   const { navigation, route } = props;
-  const { currentWallet, walletTokens } = useAppStore();
-  const { mint_address, toAddress, amount } = route.params;
-  const token = walletTokens.get(mint_address);
-  if (!token) {
-    return null;
-  }
+  const { appStore, hyperWalletStore, solanaWalletStore } = useStores();
+  const { currentWallet } = appStore;
+  const { token, toAddress, amount } = route.params;
 
   const { metadata, price } = token;
-  const { symbol, image } = metadata;
+  const { symbol, image, mint_address } = metadata;
 
   function confirmSend() {
-    if (currentWallet instanceof HyperWallet && currentWallet.otpEnabled) {
-      navigation.navigate("SendTokenOtp", {
-        mint_address,
+    if (currentWallet == "hyper" && hyperWalletStore.account?.otpEnabled) {
+      return navigation.navigate("SendTokenOtp", {
+        token,
         toAddress,
         amount,
       });
-      return;
     }
     navigation.navigate("SendTokenResult", {
-      mint_address,
+      token,
       toAddress,
       amount,
     });

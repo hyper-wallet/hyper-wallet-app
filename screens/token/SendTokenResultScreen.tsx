@@ -4,12 +4,10 @@ import { ModalStackScreenProps } from "@/navigators";
 import { FC, useState } from "react";
 import { styled } from "styled-components/native";
 import { middleEllipsis } from "@/utils";
-import { useAppStore } from "@/stores/appStore";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { SOLANA_TOKEN } from "@/core";
 import { palette } from "@/theme/palette";
-import { useTheme } from "@/hooks";
-import { TouchableWithoutFeedback } from "react-native";
+import { useStores, useTheme } from "@/hooks";
 
 const Container = styled.View`
   flex: 1;
@@ -47,19 +45,15 @@ export const SendTokenResultScreen: FC<
   const [sending, setSending] = useState(true);
   const [error, setError] = useState("");
   const [signature, setSignature] = useState("");
-  const appStore = useAppStore();
+  const { appStore, hyperWalletStore, solanaWalletStore } = useStores();
   const theme = useTheme();
-  const { currentWallet, walletTokens } = appStore;
+  const { currentWallet } = appStore;
 
   const { navigation, route } = props;
-  const { mint_address, toAddress, amount, otp } = route.params;
-  const token = walletTokens.get(mint_address);
-  if (!token || !currentWallet) {
-    return null;
-  }
+  const { token, toAddress, amount, otp } = route.params;
 
   const { metadata } = token;
-  const { name, symbol } = metadata;
+  const { symbol, mint_address } = metadata;
 
   useEffect(() => {
     send();
@@ -101,10 +95,14 @@ export const SendTokenResultScreen: FC<
 
   async function send() {
     setSending(true);
+    const wallet =
+      currentWallet == "hyper"
+        ? hyperWalletStore.wallet
+        : solanaWalletStore.wallet;
     if (mint_address == SOLANA_TOKEN.mint_address) {
       // Token is Solana - Native token
       const lamports = amount * LAMPORTS_PER_SOL;
-      currentWallet
+      wallet
         ?.transferLamports({
           toAddress,
           lamports,
@@ -115,7 +113,7 @@ export const SendTokenResultScreen: FC<
         .finally(() => setSending(false));
     } else {
       const rawAmount = amount * Math.pow(10, 6);
-      currentWallet
+      wallet
         ?.transferSpl({
           toAddress,
           tokenMintAddress: mint_address,

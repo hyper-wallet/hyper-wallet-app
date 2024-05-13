@@ -1,12 +1,12 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import { Button, Space } from "@/components";
 import { ModalStackScreenProps } from "@/navigators";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import styled from "styled-components/native";
-import { QRCode } from "react-native-custom-qr-codes-expo";
+import QRCode from "react-native-qrcode-svg";
 import { copyStringToClipboard } from "@/utils";
-import { Alert } from "react-native";
-import { useAppStore } from "@/stores/appStore";
+import { useStores } from "@/hooks";
+import HyperWalletIcon from "@/assets/images/hyper-wallet-icon.png";
+import SolanaWalletIcon from "@/assets/images/solana-wallet-icon.png";
 
 const Container = styled.View`
   flex: 1;
@@ -42,29 +42,47 @@ const Input = styled.Text`
 export const WalletAddressScreen: FC<
   ModalStackScreenProps<"WalletAddress">
 > = () => {
-  const appStore = useAppStore();
+  const [copied, setCopied] = useState(false);
+  const { appStore, hyperWalletStore, solanaWalletStore } = useStores();
   const { currentWallet } = appStore;
-  const insets = useSafeAreaInsets();
-  const copyAddress = () => {
-    copyStringToClipboard(currentWallet?.address).then(() => {
-      Alert.alert("Copied address");
+  const address =
+    currentWallet == "solana"
+      ? solanaWalletStore.wallet?.address
+      : hyperWalletStore.wallet?.address;
+
+  function copyAddress() {
+    copyStringToClipboard(address).then(() => {
+      setCopied(true);
+      setTimeout(() => {
+        setCopied(false);
+      }, 3000);
     });
-  };
+  }
+
   return (
     <Container>
       <QRCodeContainer>
-        <QRCode content={currentWallet?.address} />
+        <QRCode
+          value={address}
+          size={300}
+          logo={currentWallet == "hyper" ? HyperWalletIcon : SolanaWalletIcon}
+        />
       </QRCodeContainer>
       <InputContainer>
-        <Input>{currentWallet?.address}</Input>
+        <Input>{address}</Input>
       </InputContainer>
       <Subtitle>
-        This is a Solana wallet. Please only send assets on the Solana
-        blockchain.
+        {`This is your ${
+          currentWallet == "hyper" ? "Hyper Wallet" : "Solana Walelt"
+        } address. Please only use this address to reciver assets on Solana network address `}
       </Subtitle>
       <Space />
-      <Button label="Copy" variant="secondary" onPress={copyAddress} />
-      <Space height={insets.bottom} />
+      <Button
+        label={copied ? "Copied to clipboard 📋" : "Copy"}
+        variant="secondary"
+        onPress={copyAddress}
+      />
+      <Space insetBottom />
     </Container>
   );
 };

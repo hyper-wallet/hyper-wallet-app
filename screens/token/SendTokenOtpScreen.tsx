@@ -1,11 +1,9 @@
-import { Keyboard, TextInput, TouchableWithoutFeedback } from "react-native";
+import { Keyboard, TouchableWithoutFeedback } from "react-native";
 import { FC, useState } from "react";
 import { Button, Space } from "@/components";
 import { ModalStackScreenProps } from "@/navigators";
 import { styled } from "styled-components/native";
-import { Image } from "expo-image";
-import { fetchStringFromClipboard, middleEllipsis } from "@/utils";
-import { useAppStore } from "@/stores/appStore";
+import { fetchStringFromClipboard } from "@/utils";
 
 const Container = styled.View`
   flex: 1;
@@ -50,12 +48,7 @@ export const SendTokenOtpScreen: FC<ModalStackScreenProps<"SendTokenOtp">> = (
   props
 ) => {
   const { navigation, route } = props;
-  const { walletTokens } = useAppStore();
-  const { mint_address, toAddress, amount } = route.params;
-  const token = walletTokens.get(mint_address);
-  if (!token) {
-    return null;
-  }
+  const { token, toAddress, amount } = route.params;
 
   const [otp, setOtp] = useState("");
 
@@ -65,7 +58,7 @@ export const SendTokenOtpScreen: FC<ModalStackScreenProps<"SendTokenOtp">> = (
 
   function confirmSend() {
     navigation.navigate("SendTokenResult", {
-      mint_address,
+      token,
       toAddress,
       amount,
       otp,

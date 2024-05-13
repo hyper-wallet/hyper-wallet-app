@@ -69,7 +69,6 @@ export const TokenDetailsScreen: FC<ModalStackScreenProps<"TokenDetails">> = (
   props
 ) => {
   const { navigation, route } = props;
-  const { walletTokens } = useAppStore();
   const insets = useSafeAreaInsets();
   const [stats, setStats] = useState({
     high_3m_usd: 0,
@@ -77,18 +76,14 @@ export const TokenDetailsScreen: FC<ModalStackScreenProps<"TokenDetails">> = (
     low_3m_usd: 0,
     low_24h_usd: 0,
   });
-  const { mint_address } = route.params;
-  const token = walletTokens.get(mint_address);
-  if (!token) {
-    return null;
-  }
+  const { token } = route.params;
 
   const { balance, metadata, price } = token;
-  const { name, symbol, image } = metadata;
+  const { name, symbol, image, mint_address } = metadata;
 
   const send = () => {
     navigation.navigate("SendToken", {
-      mint_address,
+      token,
     });
   };
 

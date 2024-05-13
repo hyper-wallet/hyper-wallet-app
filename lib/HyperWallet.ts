@@ -55,20 +55,17 @@ export class HyperWallet implements IWallet {
   }
 
   async init() {
-    let account: HyperWalletAccount;
-
-    account = await this.getHyperWalletAccount();
-    if (!account) {
-      await this.createHyperWalletAccount();
-    }
-
-    account = await this.getHyperWalletAccount();
-    console.log("🚀 ~ HyperWallet ~ init ~ account:", account);
-    this._account_data = account;
+    this._account_data = await this.getHyperWalletAccount();
   }
 
   async getHyperWalletAccount(): Promise<HyperWalletAccount> {
-    return api.getHyperWalletAccount(this.address);
+    let account: HyperWalletAccount;
+    account = await api.getHyperWalletAccount(this.address);
+    if (!account) {
+      await this.createHyperWalletAccount();
+    }
+    account = await api.getHyperWalletAccount(this.address);
+    return account;
   }
 
   async createHyperWalletAccount() {

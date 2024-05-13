@@ -50,19 +50,18 @@ export const SelectWalletScreen: FC<ModalStackScreenProps<"SelectWallet">> = (
 ) => {
   const { navigation } = props;
   const appStore = useAppStore();
-  const { solanaWallet, hyperWallet, currentWallet, setCurrentWallet } =
-    appStore;
+  const { currentWallet, setCurrentWallet } = appStore;
   async function activateSolanaWallet() {
-    await setCurrentWallet(solanaWallet);
+    await setCurrentWallet("solana");
   }
   async function activateHyperWallet() {
-    await setCurrentWallet(hyperWallet);
+    await setCurrentWallet("hyper");
   }
 
   return (
     <Container>
       <SolanaWalletCard
-        active={!currentWallet?.isHyperWallet}
+        active={currentWallet == "solana"}
         onPress={activateSolanaWallet}
       >
         <Image
@@ -74,7 +73,7 @@ export const SelectWalletScreen: FC<ModalStackScreenProps<"SelectWallet">> = (
         <Subtitle>This is your Solana wallet</Subtitle>
       </SolanaWalletCard>
       <HyperWalletCard
-        active={currentWallet?.isHyperWallet}
+        active={currentWallet == "hyper"}
         onPress={activateHyperWallet}
       >
         <Image

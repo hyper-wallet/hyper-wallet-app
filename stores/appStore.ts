@@ -5,14 +5,15 @@ import Constants, { AppOwnership } from "expo-constants";
 import * as Linking from "expo-linking";
 import { connection, web3auth } from "@/services";
 import { LOGIN_PROVIDER } from "@web3auth/react-native-sdk";
-import { IWallet } from "@/lib/interfaces";
-import { clear, load, loadString, save, saveString } from "@/utils";
+import { load, loadString, save } from "@/utils";
 import {
   WalletNft,
   WalletSettings,
   WalletToken,
   WalletTransaction,
 } from "@/types";
+import { useSolanaWalletStore } from "./solanaWalletStore";
+import { useHyperWalletStore } from "./hyperWalletStore";
 
 const resolvedRedirectUrl =
   Constants.appOwnership == AppOwnership.Expo
@@ -22,20 +23,16 @@ const resolvedRedirectUrl =
 interface AppState {
   initialized: boolean;
   authenticated: boolean;
-  solanaWallet: SolanaWallet | null;
-  hyperWallet: HyperWallet | null;
-  currentWallet: IWallet | null;
+  currentWallet: "solana" | "hyper";
   creatingWallet: boolean;
+  hasWallet: boolean;
   walletTokens: Map<string, WalletToken>;
   walletNfts: WalletNft[];
   walletTransactions: WalletTransaction[];
   walletSettings: WalletSettings;
   init: () => Promise<void>;
   initWallet: (privateKey: string) => Promise<void>;
-  getTokens: () => Promise<void>;
-  getNfts: () => Promise<void>;
-  getTransactions: () => Promise<void>;
-  setCurrentWallet: (wallet: IWallet) => Promise<void>;
+  setCurrentWallet: (wallet: "hyper" | "solana") => Promise<void>;
   importPrivateKey: (privateKey: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
@@ -47,8 +44,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   authenticated: false,
   solanaWallet: null,
   hyperWallet: null,
-  currentWallet: null,
+  currentWallet: "hyper",
   creatingWallet: false,
+  hasWallet: false,
   walletTokens: new Map(),
   walletNfts: [],
   walletTransactions: [],
@@ -76,18 +74,17 @@ export const useAppStore = create<AppState>((set, get) => ({
   initWallet: async (privateKey: string) => {
     const solanaWallet = new SolanaWallet(privateKey, connection);
     const hyperWallet = new HyperWallet(solanaWallet);
-    await hyperWallet.init();
-    const currentWallet =
-      get().walletSettings.defaultWallet == "hyper"
-        ? hyperWallet
-        : solanaWallet;
+
+    useSolanaWalletStore.getState().init(solanaWallet);
+    await useHyperWalletStore.getState().init(hyperWallet);
+
+    const currentWallet = get().walletSettings.defaultWallet;
     set({
-      solanaWallet,
-      hyperWallet,
       currentWallet,
+      hasWallet: true,
     });
   },
-  setCurrentWallet: async (wallet: IWallet) => {
+  setCurrentWallet: async (wallet: "hyper" | "solana") => {
     set({ currentWallet: wallet });
   },
   importPrivateKey: async (privateKey: string) => {
@@ -112,37 +109,13 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
   removeWallet: () => {
     try {
+      // Clear private key from web3auth
       web3auth.logout();
-      set({ solanaWallet: null, hyperWallet: null, currentWallet: null });
+      // Clear private key from storage
+      set({ hasWallet: false });
     } catch (e) {
       console.log(e);
     }
-  },
-  reset: async () => {
-    await clear();
-  },
-  getTokens: async () => {
-    const currentWallet = get().currentWallet;
-    if (!currentWallet) return;
-
-    const tokens = await currentWallet.getTokens();
-    const walletTokens = new Map();
-    tokens.map((token) => walletTokens.set(token.metadata.mint_address, token));
-    set({ walletTokens });
-  },
-  getNfts: async () => {
-    const currentWallet = get().currentWallet;
-    if (!currentWallet) return;
-
-    const nfts = await currentWallet.getNfts();
-    set({ walletNfts: nfts });
-  },
-  getTransactions: async () => {
-    const currentWallet = get().currentWallet;
-    if (!currentWallet) return;
-    currentWallet.getTransactions().then((data) => {
-      set({ walletTransactions: data });
-    });
   },
 }));
 

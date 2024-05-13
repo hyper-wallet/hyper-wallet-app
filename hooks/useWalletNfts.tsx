@@ -1,33 +1,32 @@
 import { useState, useEffect } from "react";
-import { WalletNft } from "@/types";
-import { useAppStore } from "@/stores/appStore";
+import { useStores } from "./useStores";
 
 export function useWalletNfts() {
-  const [refreshing, setRefreshing] = useState(true);
-  const [nfts, setNfts] = useState<WalletNft[]>([]);
-  const { currentWallet } = useAppStore();
+  const [refreshing, setRefreshing] = useState(false);
+  const { appStore, hyperWalletStore, solanaWalletStore } = useStores();
+  const { currentWallet } = appStore;
 
-  function load() {
+  async function load() {
     setRefreshing(true);
-    currentWallet
-      .getNfts()
-      .then((nfts) => {
-        setNfts(nfts);
-      })
-      .catch((e) => console.error(e))
-      .finally(() => setRefreshing(false));
+    await Promise.all([
+      hyperWalletStore.getNfts(),
+      solanaWalletStore.getNfts(),
+    ]);
+    setRefreshing(false);
   }
 
   useEffect(() => {
-    if (!currentWallet) {
-      return;
-    }
     load();
   }, [currentWallet]);
 
+  async function refresh() {
+    if (!refreshing) return load();
+  }
+
   return {
     refreshing,
-    refresh: load,
-    nfts,
+    refresh,
+    nfts:
+      currentWallet == "hyper" ? hyperWalletStore.nfts : solanaWalletStore.nfts,
   };
 }

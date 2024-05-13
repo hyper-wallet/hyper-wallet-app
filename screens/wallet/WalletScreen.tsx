@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC } from "react";
 import {
   View,
   StyleSheet,
@@ -10,8 +10,7 @@ import { RootTabScreenProps } from "@/navigators";
 import { styled } from "styled-components/native";
 import { TokenItem } from "./TokenItem";
 import { Button } from "./Button";
-import { WalletToken } from "@/types";
-import { useAppStore } from "@/stores/appStore";
+import { useWalletTokens } from "@/hooks";
 
 const Balance = styled.Text`
   font-weight: 600;
@@ -31,52 +30,40 @@ const ButtonsRow = styled.View`
 export const WalletScreen: FC<RootTabScreenProps<"Wallet">> = ({
   navigation,
 }) => {
-  const [refreshing, setRefreshing] = useState(false);
-  const { currentWallet, walletTokens, getTokens } = useAppStore();
+  const { refresh, refreshing, tokens } = useWalletTokens();
 
-  const tokens = Array.from(walletTokens.values());
   const usdBalance = tokens.reduce((prev, token) => {
     const { balance, price } = token;
     return prev + balance * price.usd;
   }, 0);
 
-  useEffect(() => {
-    refresh();
-  }, [currentWallet]);
-
-  const viewTokenDetail = (mint_address: string) => {
+  function viewTokenDetail(mint_address: string) {
     navigation.navigate("ModalStack", {
       screen: "TokenDetails",
       params: {
         mint_address,
       },
     });
-  };
+  }
 
-  const selectSendToken = () => {
+  function selectSendToken() {
     navigation.navigate("ModalStack", {
       screen: "SelectSendToken",
     });
-  };
+  }
 
-  const viewWalletAddress = () => {
+  function viewWalletAddress() {
     navigation.navigate("ModalStack", {
       screen: "WalletAddress",
     });
-  };
+  }
 
-  const swap = () => {
+  function swap() {
     Linking.openURL("https://raydium.io/swap");
-  };
+  }
 
-  const buy = () => {
+  function buy() {
     Linking.openURL("https://www.moonpay.com/buy/sol");
-  };
-
-  async function refresh() {
-    setRefreshing(true);
-    await getTokens();
-    setRefreshing(false);
   }
 
   return (

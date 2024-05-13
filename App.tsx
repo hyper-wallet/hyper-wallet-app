@@ -22,7 +22,7 @@ export default function App() {
     return <View />;
   }
 
-  const hasWallet = !!appStore.currentWallet;
+  const { hasWallet } = appStore;
 
   return (
     <ThemeProvider theme={theme}>

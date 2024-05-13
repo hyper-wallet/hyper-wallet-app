@@ -1,59 +1,33 @@
 import { useState, useEffect } from "react";
-import { WalletToken } from "@/types";
-import { useAppStore } from "@/stores/appStore";
-
-let interval: NodeJS.Timeout;
+import { useStores } from "./useStores";
 
 export function useWalletTokens() {
   const [refreshing, setRefreshing] = useState(false);
-  const [usdBalance, setUsdBalance] = useState<number>(0);
-  const [tokens, setTokens] = useState<WalletToken[]>([]);
-  const appStore = useAppStore();
+  const { appStore, hyperWalletStore, solanaWalletStore } = useStores();
   const { currentWallet } = appStore;
-  const load = () => {
+  async function load() {
     setRefreshing(true);
-    currentWallet
-      .getTokens()
-      .then((data) => {
-        setTokens(data);
-        let usdBalance = 0;
-        data.forEach((token) => {
-          const { balance, price } = token;
-          usdBalance += balance * price.usd;
-        });
-        setUsdBalance(usdBalance);
-      })
-      .catch((error) => {})
-      .finally(() => {
-        setRefreshing(false);
-      });
-  };
+    await Promise.all([
+      hyperWalletStore.getTokens(),
+      solanaWalletStore.getTokens(),
+    ]);
+    setRefreshing(false);
+  }
 
   useEffect(() => {
-    if (!currentWallet) {
-      return;
-    }
-
     load();
-
-    interval = setInterval(load, 60 * 1000);
-
-    return () => {
-      interval && clearInterval(interval);
-    };
   }, [currentWallet]);
 
-  const refresh = () => {
-    if (refreshing || !currentWallet) {
-      return;
-    }
-    load();
-  };
+  async function refresh() {
+    if (!refreshing) return load();
+  }
 
   return {
     refreshing,
     refresh,
-    usdBalance,
-    tokens,
+    tokens:
+      currentWallet == "hyper"
+        ? hyperWalletStore.tokens
+        : solanaWalletStore.tokens,
   };
 }

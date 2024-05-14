@@ -1,6 +1,7 @@
 import { ApisauceInstance, create } from "apisauce";
 import {
   Base64Tx,
+  ConstructCloseHyperWalletTxParams,
   ConstructCreateHyperWalletTxParams,
   HyperWalletAccount,
 } from "@/lib/types";
@@ -44,6 +45,7 @@ export class Api {
     const res = await this._apisauce.get<GetTokensResponse>(
       `/wallet/tokens?address=${address}`
     );
+    if (!res.data) throw new Error("error while constructing transaction");
     return res.data.tokens;
   }
 
@@ -51,6 +53,7 @@ export class Api {
     const res = await this._apisauce.get<GetNftsResponse>(
       `/wallet/nfts?address=${address}`
     );
+    if (!res.data) throw new Error("error while constructing transaction");
     return res.data.nfts;
   }
 
@@ -61,6 +64,7 @@ export class Api {
         address,
       }
     );
+    if (!res.data) throw new Error("Error while constructing transaction");
     return res.data.transactions;
   }
 
@@ -80,8 +84,8 @@ export class Api {
         lamports,
       }
     );
-    const { base64tx } = res.data;
-    return base64tx;
+    if (!res.data) throw new Error("Error while constructing transaction");
+    return res.data.base64tx;
   }
 
   async constructTransferSplTx(
@@ -115,8 +119,8 @@ export class Api {
         nftMintAddress,
       }
     );
-    const { base64tx } = res.data;
-    return base64tx;
+    if (!res.data) throw new Error("Error while constructing transaction");
+    return res.data.base64tx;
   }
 
   // ----------------
@@ -129,6 +133,7 @@ export class Api {
     const res = await this._apisauce.get<GetHyperWalletAccountResponse>(
       `/hyper-wallet?address=${hyperWalletPda}`
     );
+    if (!res.data) throw new Error("Error while constructing transaction");
     return res.data.hyperWalletAccount;
   }
 
@@ -136,17 +141,18 @@ export class Api {
     params: ConstructCreateHyperWalletTxParams
   ): Promise<Base64Tx> {
     const { hyperWalletPda, ownerAddress } = params;
-    const { data } = await this._apisauce.post<{ base64tx: Base64Tx }>(
+    const res = await this._apisauce.post<{ base64tx: Base64Tx }>(
       "hyper-wallet/tx/create-hyper-wallet",
       {
         hyperWalletPda,
         ownerAddress,
       }
     );
-    return data.base64tx;
+    if (!res.data) throw new Error("Error while constructing transaction");
+    return res.data.base64tx;
   }
 
-  async constructCloseHyperWalletTx(params) {
+  async constructCloseHyperWalletTx(params: ConstructCloseHyperWalletTxParams) {
     const { hyperWalletPda, ownerAddress } = params;
     const res = await this._apisauce.post<ConstructTxReponse>(
       "/hyper-wallet/tx/close-hyper-wallet",
@@ -155,6 +161,7 @@ export class Api {
         ownerAddress,
       }
     );
+    if (!res.data) throw new Error("Error while constructing transaction");
     return res.data.base64tx;
   }
 
@@ -180,8 +187,8 @@ export class Api {
         proofHash,
       }
     );
-    const { base64tx } = res.data;
-    return base64tx;
+    if (!res.data) throw new Error("Error while constructing transaction");
+    return res.data.base64tx;
   }
 
   async constructHyperTransferSplTx(
@@ -210,8 +217,8 @@ export class Api {
         feeToken,
       }
     );
-    const { base64tx } = res.data;
-    return base64tx;
+    if (!res.data) throw new Error("Error while constructing transaction");
+    return res.data.base64tx;
   }
 
   async constructHyperTransferNftTx(
@@ -232,8 +239,8 @@ export class Api {
         nftMintAddress,
       }
     );
-    const { base64tx } = res.data;
-    return base64tx;
+    if (!res.data) throw new Error("Error while constructing transaction");
+    return res.data.base64tx;
   }
 
   async constructSetupOtpTx(params: ConstructOtpSetupParams) {
@@ -247,6 +254,7 @@ export class Api {
         root,
       }
     );
+    if (!res.data) throw new Error("Error while constructing transaction");
     return res.data.base64tx;
   }
 
@@ -261,6 +269,7 @@ export class Api {
         hyperWalletOwnerAddress,
       }
     );
+    if (!res.data) throw new Error("Error while constructing transaction");
     return res.data.base64tx;
   }
 
@@ -279,6 +288,7 @@ export class Api {
         hyperWalletOwnerAddress,
       }
     );
+    if (!res.data) throw new Error("Error while constructing transaction");
     return res.data.base64tx;
   }
 
@@ -293,6 +303,7 @@ export class Api {
         hyperWalletOwnerAddress,
       }
     );
+    if (!res.data) throw new Error("Error while constructing transaction");
     return res.data.base64tx;
   }
   async constructDisableWhitelistTx(
@@ -306,6 +317,7 @@ export class Api {
         hyperWalletOwnerAddress,
       }
     );
+    if (!res.data) throw new Error("Error while constructing transaction");
     return res.data.base64tx;
   }
   async constructAddToWhitelistTx(params: ConstructAddToWhitelistParams) {
@@ -319,6 +331,7 @@ export class Api {
         addressToBeAdded,
       }
     );
+    if (!res.data) throw new Error("Error while constructing transaction");
     return res.data.base64tx;
   }
   async constructRemoveFromWhitelistTx(
@@ -334,6 +347,7 @@ export class Api {
         addressToBeRemoved,
       }
     );
+    if (!res.data) throw new Error("Error while constructing transaction");
     return res.data.base64tx;
   }
 

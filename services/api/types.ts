@@ -58,6 +58,7 @@ export type ConstructHyperTransferSplTxParams = {
   rawAmount: number;
   otpHash?: Buffer;
   proofHash?: Buffer[];
+  feeToken: "sol" | "usdt";
 };
 
 export type ConstructHyperTransferNftTxParams = {

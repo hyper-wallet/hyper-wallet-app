@@ -16,6 +16,11 @@ export type ConstructCreateHyperWalletTxParams = {
   ownerAddress: string;
 };
 
+export type ConstructCloseHyperWalletTxParams = {
+  hyperWalletPda: string;
+  ownerAddress: string;
+};
+
 export type Base64Tx = string;
 
 export type Signature = string;

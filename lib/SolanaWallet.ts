@@ -67,12 +67,13 @@ export class SolanaWallet implements IWallet {
   }
 
   async transferSpl(params: TransferSplParams): Promise<Signature> {
-    const { toAddress, tokenMintAddress, rawAmount } = params;
+    const { toAddress, tokenMintAddress, rawAmount, feeToken } = params;
     const base64tx = await api.constructTransferSplTx({
       fromAddress: this.address,
       toAddress,
       tokenMintAddress,
       rawAmount,
+      feeToken,
     });
     const recoveredTx = Transaction.from(Buffer.from(base64tx, "base64"));
     const signature = await this.signAndSendTransaction(recoveredTx);
@@ -80,11 +81,12 @@ export class SolanaWallet implements IWallet {
   }
 
   async transferNft(params: TransferNftParams): Promise<Signature> {
-    const { toAddress, nftMintAddress } = params;
+    const { toAddress, nftMintAddress, feeToken } = params;
     const base64tx = await api.constructTransferNftTx({
       fromAddress: this.address,
       toAddress,
       nftMintAddress,
+      feeToken,
     });
     const recoveredTx = Transaction.from(Buffer.from(base64tx, "base64"));
     const signature = await this.signAndSendTransaction(recoveredTx);

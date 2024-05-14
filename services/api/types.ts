@@ -31,12 +31,14 @@ export type ConstructTransferSplTxParams = {
   toAddress: string;
   tokenMintAddress: string;
   rawAmount: number;
+  feeToken: "sol" | "usdt";
 };
 
 export type ConstructTransferNftTxParams = {
   fromAddress: string;
   toAddress: string;
   nftMintAddress: string;
+  feeToken: "sol" | "usdt";
 };
 
 export type ConstructHyperTransferLamportsTxParams = {

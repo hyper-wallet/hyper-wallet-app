@@ -8,6 +8,7 @@ import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { SOLANA_TOKEN } from "@/core";
 import { palette } from "@/theme/palette";
 import { useStores, useTheme } from "@/hooks";
+import * as Linking from "expo-linking";
 
 const Container = styled.View`
   flex: 1;
@@ -50,7 +51,7 @@ export const SendTokenResultScreen: FC<
   const { currentWallet } = appStore;
 
   const { navigation, route } = props;
-  const { token, toAddress, amount, otp } = route.params;
+  const { token, toAddress, amount, otp, feeToken } = route.params;
 
   const { metadata } = token;
   const { symbol, mint_address } = metadata;
@@ -91,7 +92,11 @@ export const SendTokenResultScreen: FC<
     }
   }
 
-  function viewOnExplorer() {}
+  function viewOnExplorer() {
+    Linking.openURL(
+      `https://explorer.solana.com/tx/${signature}?cluster=devnet`
+    );
+  }
 
   async function send() {
     setSending(true);
@@ -108,8 +113,8 @@ export const SendTokenResultScreen: FC<
           lamports,
           otp,
         })
-        .then((signature) => console.log(signature))
-        .catch((error) => console.error(error))
+        .then((signature) => setSignature(signature))
+        .catch((error) => setError(error))
         .finally(() => setSending(false));
     } else {
       const rawAmount = amount * Math.pow(10, 6);
@@ -119,6 +124,7 @@ export const SendTokenResultScreen: FC<
           tokenMintAddress: mint_address,
           rawAmount,
           otp,
+          feeToken,
         })
         .then((signature) => setSignature(signature))
         .catch((error) => setError(error))

@@ -1,10 +1,11 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import { Button, SectionTitle, Space } from "@/components";
 import { ModalStackScreenProps } from "@/navigators";
 import { styled } from "styled-components/native";
 import { Image } from "expo-image";
 import { middleEllipsis } from "@/utils";
 import { useStores } from "@/hooks";
+import { FeeTokenSelector } from "./FeeTokenSelector";
 
 const Container = styled.View`
   flex: 1;
@@ -67,6 +68,7 @@ export const SendTokenReviewScreen: FC<
   ModalStackScreenProps<"SendTokenReview">
 > = (props) => {
   const { navigation, route } = props;
+  const [feeToken, setFeeToken] = useState<"sol" | "usdt">("sol");
   const { appStore, hyperWalletStore, solanaWalletStore } = useStores();
   const { currentWallet } = appStore;
   const { token, toAddress, amount } = route.params;
@@ -80,12 +82,14 @@ export const SendTokenReviewScreen: FC<
         token,
         toAddress,
         amount,
+        feeToken,
       });
     }
     navigation.navigate("SendTokenResult", {
       token,
       toAddress,
       amount,
+      feeToken,
     });
   }
 
@@ -107,25 +111,11 @@ export const SendTokenReviewScreen: FC<
           <Title>Network</Title>
           <Subtitle>Solana Devnet</Subtitle>
         </Row>
-        {/* <Divider />
-        <Row>
-          <Title>Network fee</Title>
-          <Subtitle>0.005$</Subtitle>
-        </Row> */}
       </Card>
       <Space height={24} />
       <SectionTitle>Pay fee with</SectionTitle>
       <Space height={8} />
-      <Card>
-        <Row>
-          <Title>Solana</Title>
-          <Subtitle>0.000005 SOL</Subtitle>
-        </Row>
-        <Row>
-          <Title>USDT</Title>
-          <Subtitle>0.0001 USDT</Subtitle>
-        </Row>
-      </Card>
+      <FeeTokenSelector feeToken={feeToken} setFeeToken={setFeeToken} />
       <Space />
       <Button label="Confirm" onPress={confirmSend} />
       <Space insetBottom />

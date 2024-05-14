@@ -31,10 +31,12 @@ export type TransferSplParams = {
   tokenMintAddress: string;
   rawAmount: number;
   otp?: string;
+  feeToken: "sol" | "usdt";
 };
 
 export type TransferNftParams = {
   toAddress: string;
   nftMintAddress: string;
   otp?: string;
+  feeToken: "sol" | "usdt";
 };

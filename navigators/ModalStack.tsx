@@ -40,12 +40,14 @@ export type ModalStackParamList = {
     token: WalletToken;
     toAddress: string;
     amount: number;
+    feeToken: "sol" | "usdt";
   };
   SendTokenResult: {
     token: WalletToken;
     toAddress: string;
     amount: number;
     otp?: string;
+    feeToken: "sol" | "usdt";
   };
   SendNFT: {
     nft: WalletNft;

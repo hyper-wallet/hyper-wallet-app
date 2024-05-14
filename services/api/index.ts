@@ -87,7 +87,8 @@ export class Api {
   async constructTransferSplTx(
     params: ConstructTransferSplTxParams
   ): Promise<Base64Tx> {
-    const { fromAddress, toAddress, tokenMintAddress, rawAmount } = params;
+    const { fromAddress, toAddress, tokenMintAddress, rawAmount, feeToken } =
+      params;
     const res = await this._apisauce.post<ConstructTxReponse>(
       "/solana-wallet/tx/transfer-spl",
       {
@@ -95,10 +96,11 @@ export class Api {
         toAddress,
         tokenMintAddress,
         rawAmount,
+        feeToken,
       }
     );
-    const { base64tx } = res.data;
-    return base64tx;
+    if (!res.data) throw new Error("Error while constructing transaction");
+    return res.data.base64tx;
   }
 
   async constructTransferNftTx(
@@ -193,6 +195,7 @@ export class Api {
       rawAmount,
       otpHash,
       proofHash,
+      feeToken,
     } = params;
     const res = await this._apisauce.post<ConstructTxReponse>(
       "/hyper-wallet/tx/transfer-spl",
@@ -204,6 +207,7 @@ export class Api {
         rawAmount,
         otpHash,
         proofHash,
+        feeToken,
       }
     );
     const { base64tx } = res.data;

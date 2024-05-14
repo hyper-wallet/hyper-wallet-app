@@ -91,6 +91,8 @@ export const ConfirmTxModal = forwardRef<Modalize, ConfirmTxModalProps>(
       promise
         .then((signature) => {
           onConfirmed && onConfirmed();
+          //@ts-ignore
+          ref.current?.close();
         })
         .catch((e) => {
           Alert.alert(e);

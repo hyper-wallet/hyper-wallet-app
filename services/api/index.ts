@@ -57,11 +57,15 @@ export class Api {
     return res.data.nfts;
   }
 
-  async getTransactions(address: string): Promise<WalletTransaction[]> {
+  async getTransactions(
+    address: string,
+    lastLoadedSignature?: string
+  ): Promise<WalletTransaction[]> {
     const res = await this._apisauce.get<GetTransactionsResponse>(
       "/wallet/transactions",
       {
         address,
+        lastLoadedSignature,
       }
     );
     if (!res.data) throw new Error("Error while constructing transaction");

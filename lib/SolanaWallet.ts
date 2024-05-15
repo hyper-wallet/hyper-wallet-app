@@ -50,8 +50,10 @@ export class SolanaWallet implements IWallet {
     return api.getNfts(this.address);
   }
 
-  async getTransactions(): Promise<WalletTransaction[]> {
-    return api.getTransactions(this.address);
+  async getTransactions(
+    lastLoadedSignature?: string
+  ): Promise<WalletTransaction[]> {
+    return api.getTransactions(this.address, lastLoadedSignature);
   }
 
   async transferLamports(params: TransferLamportsParams): Promise<Signature> {

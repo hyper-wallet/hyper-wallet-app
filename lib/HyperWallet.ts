@@ -94,8 +94,8 @@ export class HyperWallet implements IWallet {
     return api.getNfts(this.address);
   }
 
-  async getTransactions() {
-    return api.getTransactions(this.address);
+  async getTransactions(lastLoadedSignature?: string) {
+    return api.getTransactions(this.address, lastLoadedSignature);
   }
 
   async transferLamports(params: TransferLamportsParams): Promise<Signature> {
@@ -127,6 +127,7 @@ export class HyperWallet implements IWallet {
       rawAmount,
       otpHash,
       proofHash,
+      feeToken: "USDT",
     });
     const recoveredTransaction = Transaction.from(Buffer.from(tx, "base64"));
     const signature = await this.owner.signAndSendTransaction(

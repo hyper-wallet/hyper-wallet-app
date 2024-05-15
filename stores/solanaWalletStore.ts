@@ -11,7 +11,7 @@ interface SolanaWalletState {
   init: (solanWallet: SolanaWallet) => void;
   getTokens: () => Promise<void>;
   getNfts: () => Promise<void>;
-  getTransactions: () => Promise<void>;
+  getTransactions: (lastLoadedSignature?: string) => Promise<void>;
 }
 
 export const useSolanaWalletStore = create<SolanaWalletState>((set, get) => ({

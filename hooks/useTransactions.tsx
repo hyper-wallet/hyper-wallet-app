@@ -1,60 +1,53 @@
 import { useState, useEffect } from "react";
-import { useAppStore } from "@/stores/appStore";
-import { api } from "@/services";
-import { WalletTransaction } from "@/types";
+import { useStores } from "./useStores";
 
 export function useTransactions() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [nextPage, setNextPage] = useState<string | null>(null);
-  const [hasMore, setHasMore] = useState(false);
-  const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
-  const { currentWallet } = useAppStore();
+  const [lastLoadedSignature, setLastLoadedSignature] = useState<
+    string | undefined
+  >();
+  const { appStore, hyperWalletStore, solanaWalletStore } = useStores();
 
-  const refresh = () => {
+  async function refresh() {
     setRefreshing(true);
-    currentWallet
-      ?.getTransactions()
-      .then((data) => {
-        console.log("🚀 ~ .then ~ data:", data);
-        setTransactions(data);
-      })
-      .finally(() => setRefreshing(false));
-  };
+    if (appStore.currentWallet == "solana") {
+      await solanaWalletStore.getTransactions();
+      setLastLoadedSignature(solanaWalletStore.transactions.at(-1)?.signature);
+    } else {
+      await hyperWalletStore.getTransactions();
+      setLastLoadedSignature(solanaWalletStore.transactions.at(-1)?.signature);
+    }
+    setRefreshing(false);
+  }
 
   useEffect(() => {
-    if (!currentWallet) {
-      return;
-    }
-
     refresh();
-  }, [currentWallet]);
+  }, [appStore.currentWallet]);
 
-  const loadMore = () => {
-    if (!hasMore || loading) {
+  async function loadMore() {
+    if (loading) {
       return;
     }
     setLoading(true);
-    // api
-    //   .getTransactionsInfos({
-    //     cursor: nextPage,
-    //     walletAddress: currentWallet.address,
-    //   })
-    //   .then((res) => {
-    //     setTransactions((t) => [...t, ...res.entries]);
-    //     setHasMore(res.has_more);
-    //     setNextPage(res.next_cursor);
-    //   })
-    //   .finally(() => {
-    //     setLoading(false);
-    //   });
-  };
+    if (appStore.currentWallet == "solana") {
+      await solanaWalletStore.getTransactions(lastLoadedSignature);
+      setLastLoadedSignature(solanaWalletStore.transactions.at(-1)?.signature);
+    } else {
+      await hyperWalletStore.getTransactions(lastLoadedSignature);
+      setLastLoadedSignature(solanaWalletStore.transactions.at(-1)?.signature);
+    }
+    setLoading(false);
+  }
 
   return {
     loading,
     refreshing,
     refresh,
     loadMore,
-    transactions,
+    transactions:
+      appStore.currentWallet == "hyper"
+        ? hyperWalletStore.transactions
+        : solanaWalletStore.transactions,
   };
 }

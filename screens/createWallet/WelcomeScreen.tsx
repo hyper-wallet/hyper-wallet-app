@@ -11,13 +11,21 @@ const Container = styled.View`
 `;
 
 const Title = styled.Text`
-  font-size: 24px;
-  font-weight: 600;
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 48px;
   color: ${({ theme }) => theme.foreground.primary};
 `;
 
 const Subtitle = styled.Text`
-  font-size: 16px;
+  font-size: 32px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.foreground.tertiary};
+  margin-top: 8px;
+`;
+
+const Description = styled.Text`
+  font-size: 18px;
   color: ${({ theme }) => theme.foreground.tertiary};
   margin-top: 8px;
 `;
@@ -38,12 +46,11 @@ export const WelcomeScreen: FC<CreateWalletScreenProps<"Welcome">> = ({
   return (
     <Container>
       <Space height={insets.top} />
-      <Title>Login to your wallet</Title>
-      <Subtitle>
-        You can choose to import a wallet from recovery phrase, or create a new
-        one.
-      </Subtitle>
+      <Title>Welcome to Hyper Wallet</Title>
+      <Subtitle>Your favorite Smart Contract wallet on Solana.</Subtitle>
       <Space />
+      <Description>Choose how you'd like to set up your wallet</Description>
+      <Space height={16} />
       <Button
         variant="secondary"
         label="I already had a wallet"

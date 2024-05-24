@@ -66,7 +66,7 @@ export const TokenItem: FC<TokenItemProps> = (props) => {
         <UsdBalance>
           ${(balance * (price.usd as unknown as number)).toFixed(2)}
         </UsdBalance>
-        <PriceChange change={price.usd_24h_change.toFixed(2)} />
+        <PriceChange change={price.usd_24h_change?.toFixed(2)} />
       </PriceColumn>
     </Container>
   );

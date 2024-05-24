@@ -95,7 +95,8 @@ export class HyperWallet implements IWallet {
   }
 
   async getTransactions(lastLoadedSignature?: string) {
-    return api.getTransactions(this.address, lastLoadedSignature);
+    const transactions = await api.getTransactions(this.address);
+    return transactions;
   }
 
   async transferLamports(params: TransferLamportsParams): Promise<Signature> {
@@ -127,7 +128,7 @@ export class HyperWallet implements IWallet {
       rawAmount,
       otpHash,
       proofHash,
-      feeToken: "USDT",
+      feeToken: "sol",
     });
     const recoveredTransaction = Transaction.from(Buffer.from(tx, "base64"));
     const signature = await this.owner.signAndSendTransaction(
@@ -158,6 +159,7 @@ export class HyperWallet implements IWallet {
     const TOTAL_OTP_CODES_COUNT = Math.pow(2, 10);
     const PERIOD_IN_SECONDS = 30;
     // Generate secret key
+    // TODO: round init time to be a multiple of period
     const initTimeInSeconds = Math.floor(Date.now() / 1000);
     const secretKey = base32.Base32.encode(getRandomBytes(20), "RFC4648");
     // Generate OTP codes + build tree

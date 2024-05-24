@@ -55,10 +55,26 @@ export type NftMetadata = {
 };
 
 export type WalletTransaction = {
-  name: string;
   signature: string;
-  err: unknown;
+  type: WalletTransactionType;
+  title: string;
+  subTitle: string;
+  value: string;
+  subValue: string;
+  iconUrl: string;
+  walletAddress: string;
 };
+
+export enum WalletTransactionType {
+  TransferLamports,
+  TransferSpl,
+  TransferNft,
+  EnableOtp,
+  DisableOtp,
+  EnableWhitelist,
+  DisableWhitelist,
+  Unkown,
+}
 
 export type WalletSettings = {
   defaultWallet: "hyper" | "solana";

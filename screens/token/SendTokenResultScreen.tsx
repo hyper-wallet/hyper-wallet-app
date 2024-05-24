@@ -9,6 +9,8 @@ import { SOLANA_TOKEN } from "@/core";
 import { palette } from "@/theme/palette";
 import { useStores, useTheme } from "@/hooks";
 import * as Linking from "expo-linking";
+import { WalletTransactionType } from "@/types";
+import { api } from "@/services";
 
 const Container = styled.View`
   flex: 1;
@@ -53,7 +55,7 @@ export const SendTokenResultScreen: FC<
   const { navigation, route } = props;
   const { token, toAddress, amount, otp, feeToken } = route.params;
 
-  const { metadata } = token;
+  const { metadata, price } = token;
   const { symbol, mint_address } = metadata;
 
   useEffect(() => {
@@ -113,7 +115,22 @@ export const SendTokenResultScreen: FC<
           lamports,
           otp,
         })
-        .then((signature) => setSignature(signature))
+        .then((signature) => {
+          setSignature(signature);
+          api
+            .createTransaction({
+              signature,
+              type: WalletTransactionType.TransferLamports,
+              title: `Sent ${symbol}`,
+              subTitle: `To ${middleEllipsis(toAddress)}`,
+              value: `${amount} ${symbol}`,
+              subValue: `$${amount * price.usd}`,
+              iconUrl: metadata.image,
+              walletAddress: wallet.address,
+            })
+            .then((res) => console.log(res))
+            .catch((e) => console.error(e));
+        })
         .catch((error) => setError(error))
         .finally(() => setSending(false));
     } else {
@@ -126,11 +143,27 @@ export const SendTokenResultScreen: FC<
           otp,
           feeToken,
         })
-        .then((signature) => setSignature(signature))
+        .then((signature) => {
+          setSignature(signature);
+          api
+            .createTransaction({
+              signature,
+              type: WalletTransactionType.TransferLamports,
+              title: `Sent ${symbol}`,
+              subTitle: `To ${middleEllipsis(toAddress)}`,
+              value: `${amount} ${symbol}`,
+              subValue: `$${amount * price.usd}`,
+              iconUrl: metadata.image,
+              walletAddress: wallet.address,
+            })
+            .then((res) => console.log(res))
+            .catch((e) => console.error(e));
+        })
         .catch((error) => setError(error))
         .finally(() => setSending(false));
     }
   }
+
   return (
     <Container>
       <Space />

@@ -13,10 +13,8 @@ export function useTransactions() {
     setRefreshing(true);
     if (appStore.currentWallet == "solana") {
       await solanaWalletStore.getTransactions();
-      setLastLoadedSignature(solanaWalletStore.transactions.at(-1)?.signature);
     } else {
       await hyperWalletStore.getTransactions();
-      setLastLoadedSignature(solanaWalletStore.transactions.at(-1)?.signature);
     }
     setRefreshing(false);
   }
@@ -26,18 +24,18 @@ export function useTransactions() {
   }, [appStore.currentWallet]);
 
   async function loadMore() {
-    if (loading) {
-      return;
-    }
-    setLoading(true);
-    if (appStore.currentWallet == "solana") {
-      await solanaWalletStore.getTransactions(lastLoadedSignature);
-      setLastLoadedSignature(solanaWalletStore.transactions.at(-1)?.signature);
-    } else {
-      await hyperWalletStore.getTransactions(lastLoadedSignature);
-      setLastLoadedSignature(solanaWalletStore.transactions.at(-1)?.signature);
-    }
-    setLoading(false);
+    // if (loading) {
+    //   return;
+    // }
+    // setLoading(true);
+    // if (appStore.currentWallet == "solana") {
+    //   await solanaWalletStore.getTransactions(lastLoadedSignature);
+    //   setLastLoadedSignature(solanaWalletStore.transactions.at(-1)?.signature);
+    // } else {
+    //   await hyperWalletStore.getTransactions(lastLoadedSignature);
+    //   setLastLoadedSignature(solanaWalletStore.transactions.at(-1)?.signature);
+    // }
+    // setLoading(false);
   }
 
   return {

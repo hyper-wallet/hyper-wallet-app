@@ -7,10 +7,11 @@ export function useWalletTokens() {
   const { currentWallet } = appStore;
   async function load() {
     setRefreshing(true);
-    await Promise.all([
-      hyperWalletStore.getTokens(),
-      solanaWalletStore.getTokens(),
-    ]);
+    if (currentWallet == "solana") {
+      await solanaWalletStore.getTokens();
+    } else {
+      await hyperWalletStore.getTokens();
+    }
     setRefreshing(false);
   }
 

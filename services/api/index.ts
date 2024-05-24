@@ -24,6 +24,7 @@ import {
   ConstructDisableWhitelistParams,
   ConstructAddToWhitelistParams,
   ConstructRemoveFromWhitelistParams,
+  CreateWalletTransactionParams,
 } from "./types";
 import { WalletNft, WalletToken, WalletTransaction } from "@/types";
 
@@ -32,7 +33,7 @@ export class Api {
 
   constructor() {
     this._apisauce = create({
-      baseURL: "http://192.168.31.60:3000",
+      baseURL: "http://192.168.23.100:3000",
       timeout: 30000,
     });
   }
@@ -66,6 +67,34 @@ export class Api {
       {
         address,
         lastLoadedSignature,
+      }
+    );
+    if (!res.data) throw new Error("Error while constructing transaction");
+    return res.data.transactions;
+  }
+
+  async createTransaction(params: CreateWalletTransactionParams) {
+    const {
+      signature,
+      type,
+      title,
+      subTitle,
+      value,
+      subValue,
+      iconUrl,
+      walletAddress,
+    } = params;
+    const res = await this._apisauce.post<GetTransactionsResponse>(
+      "/wallet/transactions",
+      {
+        signature,
+        type,
+        title,
+        subTitle,
+        value,
+        subValue,
+        iconUrl,
+        walletAddress,
       }
     );
     if (!res.data) throw new Error("Error while constructing transaction");

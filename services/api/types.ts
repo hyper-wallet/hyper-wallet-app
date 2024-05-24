@@ -1,4 +1,4 @@
-import { WalletNft, WalletToken } from "@/types";
+import { WalletNft, WalletToken, WalletTransactionType } from "@/types";
 
 export type GetHyperWalletAccountResponse = {
   hyperWalletAccount: any;
@@ -14,6 +14,17 @@ export type GetNftsResponse = {
 
 export type GetTransactionsResponse = {
   transactions: any[];
+};
+
+export type CreateWalletTransactionParams = {
+  signature: string;
+  type: WalletTransactionType;
+  title: string;
+  subTitle: string;
+  value: string;
+  subValue: string;
+  iconUrl: string;
+  walletAddress: string;
 };
 
 export type ConstructTxReponse = {

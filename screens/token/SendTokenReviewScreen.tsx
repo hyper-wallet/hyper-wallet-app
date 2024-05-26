@@ -1,11 +1,10 @@
 import { FC, useState } from "react";
-import { Button, SectionTitle, Space } from "@/components";
+import { Button, SectionTitle, Space, FeeTokenSelector } from "@/components";
 import { ModalStackScreenProps } from "@/navigators";
 import { styled } from "styled-components/native";
 import { Image } from "expo-image";
 import { middleEllipsis } from "@/utils";
 import { useStores } from "@/hooks";
-import { FeeTokenSelector } from "./FeeTokenSelector";
 
 const Container = styled.View`
   flex: 1;
@@ -70,7 +69,6 @@ export const SendTokenReviewScreen: FC<
   const { navigation, route } = props;
   const [feeToken, setFeeToken] = useState<"sol" | "usdt">("sol");
   const { appStore, hyperWalletStore, solanaWalletStore } = useStores();
-  console.log("🚀 ~ hyperWalletStore:", hyperWalletStore.account);
   const { currentWallet } = appStore;
   const { token, toAddress, amount } = route.params;
 

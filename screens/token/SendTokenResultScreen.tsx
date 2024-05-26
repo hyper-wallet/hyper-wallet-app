@@ -56,7 +56,7 @@ export const SendTokenResultScreen: FC<
   const { token, toAddress, amount, otp, feeToken } = route.params;
 
   const { metadata, price } = token;
-  const { symbol, mint_address } = metadata;
+  const { image, name, symbol, mint_address } = metadata;
 
   useEffect(() => {
     send();
@@ -102,66 +102,51 @@ export const SendTokenResultScreen: FC<
 
   async function send() {
     setSending(true);
+
     const wallet =
       currentWallet == "hyper"
         ? hyperWalletStore.wallet
         : solanaWalletStore.wallet;
+    let promise;
+
     if (mint_address == SOLANA_TOKEN.mint_address) {
       // Token is Solana - Native token
       const lamports = amount * LAMPORTS_PER_SOL;
-      wallet
-        ?.transferLamports({
-          toAddress,
-          lamports,
-          otp,
-        })
-        .then((signature) => {
-          setSignature(signature);
-          api
-            .createTransaction({
-              signature,
-              type: WalletTransactionType.TransferLamports,
-              title: `Sent ${symbol}`,
-              subTitle: `To ${middleEllipsis(toAddress)}`,
-              value: `${amount} ${symbol}`,
-              subValue: `$${amount * price.usd}`,
-              iconUrl: metadata.image,
-              walletAddress: wallet.address,
-            })
-            .then((res) => console.log(res))
-            .catch((e) => console.error(e));
-        })
-        .catch((error) => setError(error))
-        .finally(() => setSending(false));
+      promise = wallet?.transferLamports({
+        toAddress,
+        lamports,
+        otp,
+      });
     } else {
       const rawAmount = amount * Math.pow(10, 6);
-      wallet
-        ?.transferSpl({
-          toAddress,
-          tokenMintAddress: mint_address,
-          rawAmount,
-          otp,
-          feeToken,
-        })
-        .then((signature) => {
-          setSignature(signature);
-          api
-            .createTransaction({
-              signature,
-              type: WalletTransactionType.TransferLamports,
-              title: `Sent ${symbol}`,
-              subTitle: `To ${middleEllipsis(toAddress)}`,
-              value: `${amount} ${symbol}`,
-              subValue: `$${amount * price.usd}`,
-              iconUrl: metadata.image,
-              walletAddress: wallet.address,
-            })
-            .then((res) => console.log(res))
-            .catch((e) => console.error(e));
-        })
-        // .catch((error) => setError(error))
-        .finally(() => setSending(false));
+      promise = wallet?.transferSpl({
+        toAddress,
+        tokenMintAddress: mint_address,
+        rawAmount,
+        otp,
+        feeToken,
+      });
     }
+
+    if (!promise) return;
+    promise
+      .then((signature) => {
+        setSignature(signature);
+        api
+          .createTransaction({
+            signature,
+            type: WalletTransactionType.TransferLamports,
+            fromAddress: wallet?.address ?? "",
+            toAddress,
+            token: { iconUrl: image, name, symbol },
+            amount: amount.toString(),
+            value: (amount * price.usd).toString(),
+          })
+          .then((res) => console.log(res))
+          .catch((e) => console.error(e));
+      })
+      .catch((error) => setError(error))
+      .finally(() => setSending(false));
   }
 
   return (

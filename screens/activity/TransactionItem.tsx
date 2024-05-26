@@ -4,6 +4,8 @@ import { styled } from "styled-components/native";
 import { Icon, Subtitle } from "@/components";
 import * as Linking from "expo-linking";
 import { Image } from "expo-image";
+import { useStores } from "@/hooks";
+import { middleEllipsis } from "@/utils";
 
 type TransactionItemProps = WalletTransaction & {};
 
@@ -69,23 +71,39 @@ const TransactionIcon = (props) => {
 };
 
 export const TransactionItem: FC<TransactionItemProps> = (props) => {
-  const { signature, type, title, subTitle, value, subValue, iconUrl } = props;
+  const { signature, type, token, fromAddress, toAddress, amount, value } =
+    props;
   const viewInExplorer = () => {
     Linking.openURL(
       `https://explorer.solana.com/tx/${signature}?cluster=devnet`
     );
   };
+  const { appStore, solanaWalletStore, hyperWalletStore } = useStores();
+  const wallet =
+    appStore.currentWallet == "solana"
+      ? solanaWalletStore.wallet
+      : hyperWalletStore.wallet;
+  const title =
+    wallet?.address == fromAddress
+      ? `Sent ${token.name}`
+      : `Received ${token.name}`;
+  const subTitle =
+    wallet?.address == fromAddress
+      ? `To ${middleEllipsis(toAddress)}`
+      : `From ${middleEllipsis(fromAddress)}`;
+  const amountLabel = `${amount} ${token.symbol}`;
+  const valueLabel = `$${value}`;
   return (
     <Container onPress={viewInExplorer}>
-      <TransactionIcon type={type} iconUrl={iconUrl} />
+      <TransactionIcon type={type} iconUrl={token.iconUrl} />
       <Column>
         <Row>
           <Title>{title}</Title>
-          <Title>{value}</Title>
+          <Title>{amountLabel}</Title>
         </Row>
         <Row>
           <Subtitle>{subTitle}</Subtitle>
-          <Subtitle>{subValue}</Subtitle>
+          <Subtitle>{valueLabel}</Subtitle>
         </Row>
       </Column>
     </Container>

@@ -74,27 +74,18 @@ export class Api {
   }
 
   async createTransaction(params: CreateWalletTransactionParams) {
-    const {
-      signature,
-      type,
-      title,
-      subTitle,
-      value,
-      subValue,
-      iconUrl,
-      walletAddress,
-    } = params;
+    const { signature, type, fromAddress, toAddress, token, amount, value } =
+      params;
     const res = await this._apisauce.post<GetTransactionsResponse>(
       "/wallet/transactions",
       {
         signature,
         type,
-        title,
-        subTitle,
+        fromAddress,
+        toAddress,
+        token,
+        amount,
         value,
-        subValue,
-        iconUrl,
-        walletAddress,
       }
     );
     if (!res.data) throw new Error("Error while constructing transaction");

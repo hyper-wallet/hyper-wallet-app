@@ -19,12 +19,15 @@ export type GetTransactionsResponse = {
 export type CreateWalletTransactionParams = {
   signature: string;
   type: WalletTransactionType;
-  title: string;
-  subTitle: string;
+  fromAddress: string;
+  toAddress: string;
+  token: {
+    iconUrl: string;
+    name: string;
+    symbol: string;
+  };
+  amount: string;
   value: string;
-  subValue: string;
-  iconUrl: string;
-  walletAddress: string;
 };
 
 export type ConstructTxReponse = {

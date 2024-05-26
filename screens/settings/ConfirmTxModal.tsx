@@ -44,7 +44,7 @@ const subtitleByMethod: Record<Method, string> = {
 type ConfirmTxModalProps = {
   method: Method;
   onRejected?: () => void;
-  onConfirmed?: () => void;
+  onConfirmed?: (data: any) => void;
 };
 
 export const ConfirmTxModal = forwardRef<Modalize, ConfirmTxModalProps>(
@@ -89,8 +89,8 @@ export const ConfirmTxModal = forwardRef<Modalize, ConfirmTxModalProps>(
       }
       setLoadinng(true);
       promise
-        .then((signature) => {
-          onConfirmed && onConfirmed();
+        .then((data) => {
+          onConfirmed && onConfirmed(data);
           //@ts-ignore
           ref.current?.close();
         })

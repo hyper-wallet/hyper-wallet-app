@@ -15,6 +15,7 @@ import * as base32 from "base32-ts";
 import { getRandomBytes } from "expo-crypto";
 import * as totp from "totp-generator";
 import { MerkleTree } from "merkletreejs";
+//@ts-ignore
 import { createHash } from "crypto-browserify";
 import { load, save } from "@/utils";
 
@@ -23,6 +24,7 @@ export class HyperWallet implements IWallet {
   private _owner: SolanaWallet;
   readonly isHyperWallet = true;
   readonly icon = "https://cdn.lu.ma/solana-coin-icons/SOL.png";
+  //@ts-ignore
   private _account_data: HyperWalletAccount;
 
   constructor(owner: SolanaWallet) {
@@ -65,6 +67,7 @@ export class HyperWallet implements IWallet {
       await this.createHyperWalletAccount();
     }
     account = await api.getHyperWalletAccount(this.address);
+    this._account_data = account;
     return account;
   }
 
@@ -160,21 +163,32 @@ export class HyperWallet implements IWallet {
     const PERIOD_IN_SECONDS = 30;
     // Generate secret key
     // TODO: round init time to be a multiple of period
-    const initTimeInSeconds = Math.floor(Date.now() / 1000);
+    const initTimeInSeconds =
+      Math.floor(Date.now() / 1000 / PERIOD_IN_SECONDS) * PERIOD_IN_SECONDS;
+    console.log(
+      "🚀 ~ HyperWallet ~ setupOtp ~ initTimeInSeconds:",
+      new Date(initTimeInSeconds * 1000)
+    );
     const secretKey = base32.Base32.encode(getRandomBytes(20), "RFC4648");
     // Generate OTP codes + build tree
     const leave_values = [];
+    let count = 0;
     for (let i = 0; i < TOTAL_OTP_CODES_COUNT; i++) {
+      const timestamp = (initTimeInSeconds + i * PERIOD_IN_SECONDS) * 1000;
       const otp = totp.TOTP.generate(secretKey, {
         period: PERIOD_IN_SECONDS,
-        timestamp: (initTimeInSeconds + i * PERIOD_IN_SECONDS) * 1000,
+        timestamp,
       }).otp.toString();
+      if (count <= 10) {
+        console.log(new Date(timestamp).getMinutes(), otp);
+      }
+      count++;
       leave_values.push(otp);
     }
     const leave_hashes = leave_values.map((v) =>
       createHash("sha256").update(v).digest()
     );
-    const tree = new MerkleTree(leave_hashes, (data) =>
+    const tree = new MerkleTree(leave_hashes, (data: any) =>
       createHash("sha256").update(data).digest()
     );
 
@@ -183,9 +197,8 @@ export class HyperWallet implements IWallet {
 
     // Generate link + QR Code
     const otpLink = `otpauth://totp/Hyper%Wallet:${this.address}?secret=${secretKey}&issuer=Hyper%20Wallet&algorithm=SHA1&digits=6&period=30`;
-    // Submit root + init time
-    console.log("🚀 ~ HyperWallet ~ setupOtp ~ otpLink:", otpLink);
 
+    // Submit root + init time
     const tx = await api.constructSetupOtpTx({
       hyperWalletPda: this.address,
       hyperWalletOwnerAddress: this.owner.address,
@@ -196,7 +209,7 @@ export class HyperWallet implements IWallet {
     const signature = await this.owner.signAndSendTransaction(
       recoveredTransaction
     );
-    return signature;
+    return { signature, secretKey, otpLink };
   }
 
   async enableOtp() {
@@ -250,7 +263,17 @@ export class HyperWallet implements IWallet {
     return this._signAndSendTransaction(base64tx);
   }
 
-  private async _getOtpHashAndProofHash(otp: string) {
+  private async _getOtpHashAndProofHash(otp: string | null) {
+    if (!this._account_data.otpEnabled || !otp) {
+      console.log(
+        "🚀 ~ HyperWallet ~ _getOtpHashAndProofHash ~ otpEnabled:",
+        this.otpEnabled
+      );
+      return {
+        otpHash: null,
+        proofHash: null,
+      };
+    }
     const otpHash = createHash("sha256").update(otp).digest();
     const jsonTree = await load("merkle-tree");
     const tree = MerkleTree.unmarshalTree(jsonTree);

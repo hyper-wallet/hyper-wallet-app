@@ -1,4 +1,4 @@
-import { Button, Space, Title } from "@/components";
+import { Button, Icon, Space, Title } from "@/components";
 import { ModalStackScreenProps } from "@/navigators";
 import { FC, useRef } from "react";
 import { View } from "react-native";
@@ -6,13 +6,27 @@ import { Modalize } from "react-native-modalize";
 import styled from "styled-components/native";
 import { ConfirmTxModal } from "./ConfirmTxModal";
 import { useStores } from "@/hooks";
+import { palette } from "@/theme/palette";
 
 const Container = styled.View`
   flex: 1;
   padding: 0 16px;
 `;
 
-export const OtpSettingScreen: FC<ModalStackScreenProps<"OtpSetting">> = () => {
+const IconContainer = styled.View`
+  background-color: rgba(0, 0, 0, 0.05);
+  align-self: center;
+  width: 200px;
+  height: 200px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 100%;
+`;
+
+export const OtpSettingScreen: FC<ModalStackScreenProps<"OtpSetting">> = (
+  props
+) => {
+  const { navigation } = props;
   const { appStore, hyperWalletStore, solanaWalletStore } = useStores();
   const disableOtpModal = useRef<Modalize>(null);
   const enableOtpModal = useRef<Modalize>(null);
@@ -48,7 +62,16 @@ export const OtpSettingScreen: FC<ModalStackScreenProps<"OtpSetting">> = () => {
 
   return (
     <Container>
-      <Title>{otpStatus}</Title>
+      <Space height={80} />
+      <IconContainer>
+        <Icon
+          name="ri-shield-keyhole-line"
+          size={100}
+          color={otpEnabled ? palette.green[50] : palette.red[50]}
+        />
+      </IconContainer>
+      <Space height={16} />
+      <Title style={{ alignSelf: "center", fontSize: 22 }}>{otpStatus}</Title>
       <Space />
       {otpDidSetup ? (
         otpEnabled ? (
@@ -84,7 +107,16 @@ export const OtpSettingScreen: FC<ModalStackScreenProps<"OtpSetting">> = () => {
         }}
       />
       <ConfirmTxModal ref={setupOtpModal} method="setupOtp" />
-      <ConfirmTxModal ref={resetOtpModal} method="resetOtp" />
+      <ConfirmTxModal
+        ref={resetOtpModal}
+        method="resetOtp"
+        onConfirmed={(data) => {
+          navigation.navigate("OtpSecret", {
+            secret: data.secretKey,
+            otpLink: data.otpLink,
+          });
+        }}
+      />
     </Container>
   );
 };

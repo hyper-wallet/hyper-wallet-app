@@ -57,8 +57,8 @@ export type ConstructHyperTransferLamportsTxParams = {
   hyperWalletOwnerAddress: string;
   toAddress: string;
   lamports: number;
-  otpHash?: Buffer;
-  proofHash?: Buffer[];
+  otpHash: Buffer | null;
+  proofHash: Buffer[] | null;
 };
 
 export type ConstructHyperTransferSplTxParams = {
@@ -67,8 +67,8 @@ export type ConstructHyperTransferSplTxParams = {
   toAddress: string;
   tokenMintAddress: string;
   rawAmount: number;
-  otpHash?: Buffer;
-  proofHash?: Buffer[];
+  otpHash: Buffer | null;
+  proofHash: Buffer[] | null;
   feeToken: "sol" | "usdt";
 };
 
@@ -77,8 +77,8 @@ export type ConstructHyperTransferNftTxParams = {
   hyperWalletOwnerAddress: string;
   toAddress: string;
   nftMintAddress: string;
-  otpHash?: Buffer;
-  proofHash?: Buffer[];
+  otpHash: Buffer | null;
+  proofHash: Buffer[] | null;
 };
 
 export type ConstructOtpSetupParams = {

@@ -159,7 +159,7 @@ export const SendTokenResultScreen: FC<
             .then((res) => console.log(res))
             .catch((e) => console.error(e));
         })
-        .catch((error) => setError(error))
+        // .catch((error) => setError(error))
         .finally(() => setSending(false));
     }
   }

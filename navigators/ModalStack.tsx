@@ -12,6 +12,7 @@ import {
   WhitelistSettingScreen,
   SendTokenOtpScreen,
   OtpSettingScreen,
+  OtpSecretScreen,
 } from "@/screens";
 import { WalletNft, WalletToken } from "@/types";
 import {
@@ -46,7 +47,7 @@ export type ModalStackParamList = {
     token: WalletToken;
     toAddress: string;
     amount: number;
-    otp?: string;
+    otp: string | null;
     feeToken: "sol" | "usdt";
   };
   SendNFT: {
@@ -64,6 +65,10 @@ export type ModalStackParamList = {
   PrivateKey: undefined;
   SelectSendToken: undefined;
   OtpSetting: undefined;
+  OtpSecret: {
+    secret: string;
+    otpLink: string;
+  };
   WhitelistSetting: undefined;
 };
 
@@ -150,6 +155,11 @@ export const ModalStack = () => {
         name="OtpSetting"
         component={OtpSettingScreen}
         options={{ title: "OTP Setting" }}
+      />
+      <Stack.Screen
+        name="OtpSecret"
+        component={OtpSecretScreen}
+        options={{ title: "OTP Secret" }}
       />
       <Stack.Screen
         name="WhitelistSetting"

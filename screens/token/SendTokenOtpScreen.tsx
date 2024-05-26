@@ -48,7 +48,7 @@ export const SendTokenOtpScreen: FC<ModalStackScreenProps<"SendTokenOtp">> = (
   props
 ) => {
   const { navigation, route } = props;
-  const { token, toAddress, amount } = route.params;
+  const { token, toAddress, amount, feeToken } = route.params;
 
   const [otp, setOtp] = useState("");
 
@@ -62,6 +62,7 @@ export const SendTokenOtpScreen: FC<ModalStackScreenProps<"SendTokenOtp">> = (
       toAddress,
       amount,
       otp,
+      feeToken,
     });
   }
 

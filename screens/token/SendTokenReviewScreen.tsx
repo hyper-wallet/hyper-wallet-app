@@ -70,6 +70,7 @@ export const SendTokenReviewScreen: FC<
   const { navigation, route } = props;
   const [feeToken, setFeeToken] = useState<"sol" | "usdt">("sol");
   const { appStore, hyperWalletStore, solanaWalletStore } = useStores();
+  console.log("🚀 ~ hyperWalletStore:", hyperWalletStore.account);
   const { currentWallet } = appStore;
   const { token, toAddress, amount } = route.params;
 
@@ -89,6 +90,7 @@ export const SendTokenReviewScreen: FC<
       token,
       toAddress,
       amount,
+      otp: null,
       feeToken,
     });
   }

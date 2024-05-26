@@ -33,7 +33,7 @@ export class Api {
 
   constructor() {
     this._apisauce = create({
-      baseURL: "http://192.168.23.100:3000",
+      baseURL: "http://192.168.31.61:3000",
       timeout: 30000,
     });
   }

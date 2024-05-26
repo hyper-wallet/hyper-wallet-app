@@ -74,8 +74,10 @@ const AmountInput = styled.TextInput`
 export const SendTokenScreen: FC<ModalStackScreenProps<"SendToken">> = (
   props
 ) => {
-  const [amount, setAmount] = useState("");
-  const [recipientAddress, setRecipientAddress] = useState("");
+  const [amount, setAmount] = useState("5");
+  const [recipientAddress, setRecipientAddress] = useState(
+    "4ywgeyfbiYcAAqJTNtSY4DuCwQjnz9cctPR2S9twutbT"
+  );
   const { walletTokens } = useAppStore();
 
   const { navigation, route } = props;

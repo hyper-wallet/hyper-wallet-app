@@ -2,7 +2,8 @@ import { FC } from "react";
 import { ModalStackScreenProps } from "@/navigators";
 import styled from "styled-components/native";
 import { TokenItem } from "./TokenItem";
-import { useAppStore } from "@/stores/appStore";
+import { useStores } from "@/hooks";
+import { WalletToken } from "@/types";
 
 const Container = styled.ScrollView`
   padding: 16px 0px;
@@ -11,21 +12,27 @@ const Container = styled.ScrollView`
 export const SelectSendTokenScreen: FC<
   ModalStackScreenProps<"SelectSendToken">
 > = (props) => {
-  const { navigation, route } = props;
-  const { walletTokens } = useAppStore();
-  const tokens = Array.from(walletTokens.values());
-  const sendToken = (mint_address: string) => {
+  const { navigation } = props;
+  const { appStore, hyperWalletStore, solanaWalletStore } = useStores();
+
+  const tokens =
+    appStore.currentWallet == "hyper"
+      ? Array.from(hyperWalletStore.tokens.values())
+      : Array.from(solanaWalletStore.tokens.values());
+
+  function sendToken(token: WalletToken) {
     navigation.navigate("SendToken", {
-      mint_address,
+      token,
     });
-  };
+  }
+
   return (
     <Container>
       {tokens.map((token) => (
         <TokenItem
           key={token.metadata.mint_address}
           {...token}
-          onPress={() => sendToken(token.metadata.mint_address)}
+          onPress={() => sendToken(token)}
         />
       ))}
     </Container>

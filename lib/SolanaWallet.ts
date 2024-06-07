@@ -2,7 +2,7 @@ import { Connection, Keypair, Transaction } from "@solana/web3.js";
 import * as bs58 from "bs58";
 import nacl from "tweetnacl";
 import IWallet from "./IWallet";
-import { api } from "@/services";
+import { apiService } from "@/services";
 import {
   Signature,
   TransferLamportsParams,
@@ -43,23 +43,23 @@ export class SolanaWallet implements IWallet {
   }
 
   async getTokens(): Promise<WalletToken[]> {
-    return api.getTokens(this.address);
+    return apiService.getTokens(this.address);
   }
 
   async getNfts(): Promise<WalletNft[]> {
-    return api.getNfts(this.address);
+    return apiService.getNfts(this.address);
   }
 
   async getTransactions(
     lastLoadedSignature?: string
   ): Promise<WalletTransaction[]> {
-    const transactions = await api.getTransactions(this.address);
+    const transactions = await apiService.getTransactions(this.address);
     return transactions;
   }
 
   async transferLamports(params: TransferLamportsParams): Promise<Signature> {
     const { toAddress, lamports } = params;
-    const base64tx = await api.constructTransferLamportsTx({
+    const base64tx = await apiService.constructTransferLamportsTx({
       fromAddress: this.address,
       toAddress,
       lamports,
@@ -71,7 +71,7 @@ export class SolanaWallet implements IWallet {
 
   async transferSpl(params: TransferSplParams): Promise<Signature> {
     const { toAddress, tokenMintAddress, rawAmount, feeToken } = params;
-    const base64tx = await api.constructTransferSplTx({
+    const base64tx = await apiService.constructTransferSplTx({
       fromAddress: this.address,
       toAddress,
       tokenMintAddress,
@@ -85,7 +85,7 @@ export class SolanaWallet implements IWallet {
 
   async transferNft(params: TransferNftParams): Promise<Signature> {
     const { toAddress, nftMintAddress, feeToken } = params;
-    const base64tx = await api.constructTransferNftTx({
+    const base64tx = await apiService.constructTransferNftTx({
       fromAddress: this.address,
       toAddress,
       nftMintAddress,

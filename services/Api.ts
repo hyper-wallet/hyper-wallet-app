@@ -25,15 +25,15 @@ import {
   ConstructAddToWhitelistParams,
   ConstructRemoveFromWhitelistParams,
   CreateWalletTransactionParams,
-} from "./types";
+} from "./Api.types";
 import { WalletNft, WalletToken, WalletTransaction } from "@/types";
 
-export class Api {
+class Api {
   _apisauce: ApisauceInstance;
 
-  constructor() {
+  constructor(baseUrl: string) {
     this._apisauce = create({
-      baseURL: "http://192.168.31.61:3000",
+      baseURL: baseUrl,
       timeout: 30000,
     });
   }
@@ -383,4 +383,4 @@ export class Api {
   async constructRemoveSpendingLimitTx() {}
 }
 
-export const api = new Api();
+export default Api;

@@ -1,10 +1,7 @@
 import { create } from "zustand";
 import { SolanaWallet } from "@/lib/SolanaWallet";
 import { HyperWallet } from "@/lib/HyperWallet";
-import Constants, { AppOwnership } from "expo-constants";
-import * as Linking from "expo-linking";
-import { connection, web3auth } from "@/services";
-import { LOGIN_PROVIDER } from "@web3auth/react-native-sdk";
+import { networkService, socialAuthService } from "@/services";
 import { load, loadString, save } from "@/utils";
 import {
   WalletNft,
@@ -14,11 +11,6 @@ import {
 } from "@/types";
 import { useSolanaWalletStore } from "./solanaWalletStore";
 import { useHyperWalletStore } from "./hyperWalletStore";
-
-const resolvedRedirectUrl =
-  Constants.appOwnership == AppOwnership.Expo
-    ? Linking.createURL("web3auth", {})
-    : Linking.createURL("web3auth", { scheme: "hyperwallet" });
 
 interface AppState {
   initialized: boolean;
@@ -62,17 +54,21 @@ export const useAppStore = create<AppState>((set, get) => ({
       set({ walletSettings: savedSettings });
     }
 
-    const privateKey = web3auth.ed25519Key || (await loadString("private-key"));
+    const privateKey =
+      socialAuthService.getPrivateKey() || (await loadString("private-key"));
     if (privateKey) {
       await get().initWallet(privateKey);
     }
     // Init Stores and Services
-    await web3auth.init();
+    await socialAuthService.init();
 
     set({ initialized: true });
   },
   initWallet: async (privateKey: string) => {
-    const solanaWallet = new SolanaWallet(privateKey, connection);
+    const solanaWallet = new SolanaWallet(
+      privateKey,
+      networkService.connection
+    );
     const hyperWallet = new HyperWallet(solanaWallet);
 
     useSolanaWalletStore.getState().init(solanaWallet);
@@ -94,23 +90,20 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
   loginWithGoogle: async () => {
     set({ creatingWallet: true });
-    await web3auth.login({
-      loginProvider: LOGIN_PROVIDER.GOOGLE,
-      redirectUrl: resolvedRedirectUrl,
-    });
-    const privateKey = web3auth.ed25519Key;
+    await socialAuthService.loginWithGoogle();
+    const privateKey = socialAuthService.getPrivateKey();
     await get().initWallet(privateKey);
     set({
       creatingWallet: false,
     });
   },
   logout: async () => {
-    return web3auth.logout();
+    return socialAuthService.logout();
   },
   removeWallet: () => {
     try {
-      // Clear private key from web3auth
-      web3auth.logout();
+      // Logout from social auth service
+      socialAuthService.logout();
       // Clear private key from storage
       set({ hasWallet: false });
     } catch (e) {

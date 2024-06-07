@@ -9,7 +9,7 @@ import {
   TransferSplParams,
   TransferNftParams,
 } from "./types";
-import { api } from "@/services";
+import { apiService } from "@/services";
 import { WalletNft, WalletToken } from "@/types";
 import * as base32 from "base32-ts";
 import { getRandomBytes } from "expo-crypto";
@@ -62,17 +62,17 @@ export class HyperWallet implements IWallet {
 
   async getHyperWalletAccount(): Promise<HyperWalletAccount> {
     let account: HyperWalletAccount;
-    account = await api.getHyperWalletAccount(this.address);
+    account = await apiService.getHyperWalletAccount(this.address);
     if (!account) {
       await this.createHyperWalletAccount();
     }
-    account = await api.getHyperWalletAccount(this.address);
+    account = await apiService.getHyperWalletAccount(this.address);
     this._account_data = account;
     return account;
   }
 
   async createHyperWalletAccount() {
-    const base64tx = await api.constructCreateHyperWalletTx({
+    const base64tx = await apiService.constructCreateHyperWalletTx({
       hyperWalletPda: this.address,
       ownerAddress: this.owner.address,
     });
@@ -81,7 +81,7 @@ export class HyperWallet implements IWallet {
   }
 
   async closeHyperWalletAccount() {
-    const base64tx = await api.constructCloseHyperWalletTx({
+    const base64tx = await apiService.constructCloseHyperWalletTx({
       hyperWalletPda: this.address,
       ownerAddress: this.owner.address,
     });
@@ -90,22 +90,22 @@ export class HyperWallet implements IWallet {
   }
 
   async getTokens(): Promise<WalletToken[]> {
-    return api.getTokens(this.address);
+    return apiService.getTokens(this.address);
   }
 
   async getNfts(): Promise<WalletNft[]> {
-    return api.getNfts(this.address);
+    return apiService.getNfts(this.address);
   }
 
   async getTransactions(lastLoadedSignature?: string) {
-    const transactions = await api.getTransactions(this.address);
+    const transactions = await apiService.getTransactions(this.address);
     return transactions;
   }
 
   async transferLamports(params: TransferLamportsParams): Promise<Signature> {
     const { toAddress, lamports, otp } = params;
     const { otpHash, proofHash } = await this._getOtpHashAndProofHash(otp);
-    const tx = await api.constructHyperTransferLamportsTx({
+    const tx = await apiService.constructHyperTransferLamportsTx({
       fromHyperWalletPda: this.address,
       hyperWalletOwnerAddress: this.owner.address,
       toAddress,
@@ -123,7 +123,7 @@ export class HyperWallet implements IWallet {
   async transferSpl(params: TransferSplParams): Promise<Signature> {
     const { toAddress, tokenMintAddress, rawAmount, otp, feeToken } = params;
     const { otpHash, proofHash } = await this._getOtpHashAndProofHash(otp);
-    const tx = await api.constructHyperTransferSplTx({
+    const tx = await apiService.constructHyperTransferSplTx({
       fromHyperWalletPda: this.address,
       hyperWalletOwnerAddress: this.owner.address,
       toAddress,
@@ -142,12 +142,8 @@ export class HyperWallet implements IWallet {
 
   async transferNft(params: TransferNftParams): Promise<Signature> {
     const { toAddress, nftMintAddress, otp, feeToken } = params;
-    console.log(
-      "🚀 ~ HyperWallet ~ transferNft ~ { toAddress, nftMintAddress, otp, feeToken }:",
-      { toAddress, nftMintAddress, otp, feeToken }
-    );
     const { otpHash, proofHash } = await this._getOtpHashAndProofHash(otp);
-    const tx = await api.constructHyperTransferSplTx({
+    const tx = await apiService.constructHyperTransferSplTx({
       fromHyperWalletPda: this.address,
       hyperWalletOwnerAddress: this.owner.address,
       toAddress,
@@ -196,7 +192,7 @@ export class HyperWallet implements IWallet {
     const otpLink = `otpauth://totp/Hyper%20Wallet:${this.address}?secret=${secretKey}&issuer=Hyper%20Wallet&algorithm=SHA1&digits=6&period=30`;
 
     // Submit root + init time
-    const tx = await api.constructSetupOtpTx({
+    const tx = await apiService.constructSetupOtpTx({
       hyperWalletPda: this.address,
       hyperWalletOwnerAddress: this.owner.address,
       initTime: initTimeInSeconds,
@@ -210,7 +206,7 @@ export class HyperWallet implements IWallet {
   }
 
   async enableOtp() {
-    const base64tx = await api.constructEnableOtpTx({
+    const base64tx = await apiService.constructEnableOtpTx({
       hyperWalletPda: this.address,
       hyperWalletOwnerAddress: this.owner.address,
     });
@@ -218,28 +214,28 @@ export class HyperWallet implements IWallet {
   }
 
   async disableOtp() {
-    const base64tx = await api.constructDisableOtpTx({
+    const base64tx = await apiService.constructDisableOtpTx({
       hyperWalletPda: this.address,
       hyperWalletOwnerAddress: this.owner.address,
     });
     return this._signAndSendTransaction(base64tx);
   }
   async enableWhitelist() {
-    const base64tx = await api.constructEnableWhitelistTx({
+    const base64tx = await apiService.constructEnableWhitelistTx({
       hyperWalletPda: this.address,
       hyperWalletOwnerAddress: this.owner.address,
     });
     return this._signAndSendTransaction(base64tx);
   }
   async disableWhitelist() {
-    const base64tx = await api.constructDisableWhitelistTx({
+    const base64tx = await apiService.constructDisableWhitelistTx({
       hyperWalletPda: this.address,
       hyperWalletOwnerAddress: this.owner.address,
     });
     return this._signAndSendTransaction(base64tx);
   }
   async addAddressToWhitelist(address: string) {
-    const base64tx = await api.constructAddToWhitelistTx({
+    const base64tx = await apiService.constructAddToWhitelistTx({
       hyperWalletPda: this.address,
       hyperWalletOwnerAddress: this.owner.address,
       addressToBeAdded: address,
@@ -247,7 +243,7 @@ export class HyperWallet implements IWallet {
     return this._signAndSendTransaction(base64tx);
   }
   async removeAddressFromWhitelist(address: string) {
-    const base64tx = await api.constructRemoveFromWhitelistTx({
+    const base64tx = await apiService.constructRemoveFromWhitelistTx({
       hyperWalletPda: this.address,
       hyperWalletOwnerAddress: this.owner.address,
       addressToBeRemoved: address,

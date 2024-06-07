@@ -13,6 +13,9 @@ import {
   SendTokenOtpScreen,
   OtpSettingScreen,
   OtpSecretScreen,
+  SendNftReviewScreen,
+  SendNftOtpScreen,
+  SendNftResultScreen,
 } from "@/screens";
 import { WalletNft, WalletToken } from "@/types";
 import {
@@ -50,16 +53,23 @@ export type ModalStackParamList = {
     otp: string | null;
     feeToken: "sol" | "usdt";
   };
-  SendNFT: {
+  SendNft: {
     nft: WalletNft;
   };
   SendNftReview: {
     nft: WalletNft;
     toAddress: string;
   };
+  SendNftOtp: {
+    nft: WalletNft;
+    toAddress: string;
+    feeToken: "sol" | "usdt";
+  };
   SendNftResult: {
     nft: WalletNft;
     toAddress: string;
+    otp: string | null;
+    feeToken: "sol" | "usdt";
   };
   RecoveryPhrase: undefined;
   PrivateKey: undefined;
@@ -107,13 +117,6 @@ export const ModalStack = () => {
         options={{ title: "Details" }}
       />
       <Stack.Screen
-        name="SendNFT"
-        component={SendNftScreen}
-        options={{
-          title: "Send NFT",
-        }}
-      />
-      <Stack.Screen
         name="SelectSendToken"
         component={SelectSendTokenScreen}
         options={{ title: "Select Token" }}
@@ -144,6 +147,34 @@ export const ModalStack = () => {
         component={SendTokenResultScreen}
         options={{
           title: "Result",
+        }}
+      />
+      <Stack.Screen
+        name="SendNft"
+        component={SendNftScreen}
+        options={{
+          title: "Send NFT",
+        }}
+      />
+      <Stack.Screen
+        name="SendNftReview"
+        component={SendNftReviewScreen}
+        options={{
+          title: "Review",
+        }}
+      />
+      <Stack.Screen
+        name="SendNftOtp"
+        component={SendNftOtpScreen}
+        options={{
+          title: "Review",
+        }}
+      />
+      <Stack.Screen
+        name="SendNftResult"
+        component={SendNftResultScreen}
+        options={{
+          title: "Review",
         }}
       />
       <Stack.Screen

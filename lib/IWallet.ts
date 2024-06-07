@@ -6,7 +6,7 @@ import {
   Signature,
 } from "./types";
 
-export interface IWallet {
+interface IWallet {
   get address(): string;
   readonly isHyperWallet: boolean;
   readonly icon: string;
@@ -17,3 +17,5 @@ export interface IWallet {
   transferSpl(params: TransferSplParams): Promise<Signature>;
   transferNft(params: TransferNftParams): Promise<Signature>;
 }
+
+export default IWallet;

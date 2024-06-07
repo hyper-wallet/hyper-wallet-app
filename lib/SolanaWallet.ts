@@ -1,7 +1,7 @@
 import { Connection, Keypair, Transaction } from "@solana/web3.js";
 import * as bs58 from "bs58";
 import nacl from "tweetnacl";
-import { IWallet } from "./interfaces";
+import IWallet from "./IWallet";
 import { api } from "@/services";
 import {
   Signature,

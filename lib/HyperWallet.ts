@@ -1,7 +1,7 @@
 import { PublicKey, Transaction } from "@solana/web3.js";
 import { SolanaWallet } from "@/lib/SolanaWallet";
 import { getHyperWalletPda } from "@/lib/utils";
-import { IWallet } from "./interfaces";
+import IWallet from "./IWallet";
 import {
   HyperWalletAccount,
   TransferLamportsParams,
@@ -121,7 +121,7 @@ export class HyperWallet implements IWallet {
   }
 
   async transferSpl(params: TransferSplParams): Promise<Signature> {
-    const { toAddress, tokenMintAddress, rawAmount, otp } = params;
+    const { toAddress, tokenMintAddress, rawAmount, otp, feeToken } = params;
     const { otpHash, proofHash } = await this._getOtpHashAndProofHash(otp);
     const tx = await api.constructHyperTransferSplTx({
       fromHyperWalletPda: this.address,
@@ -131,7 +131,7 @@ export class HyperWallet implements IWallet {
       rawAmount,
       otpHash,
       proofHash,
-      feeToken: "sol",
+      feeToken,
     });
     const recoveredTransaction = Transaction.from(Buffer.from(tx, "base64"));
     const signature = await this.owner.signAndSendTransaction(
@@ -141,15 +141,21 @@ export class HyperWallet implements IWallet {
   }
 
   async transferNft(params: TransferNftParams): Promise<Signature> {
-    const { toAddress, nftMintAddress, otp } = params;
+    const { toAddress, nftMintAddress, otp, feeToken } = params;
+    console.log(
+      "🚀 ~ HyperWallet ~ transferNft ~ { toAddress, nftMintAddress, otp, feeToken }:",
+      { toAddress, nftMintAddress, otp, feeToken }
+    );
     const { otpHash, proofHash } = await this._getOtpHashAndProofHash(otp);
-    const tx = await api.constructHyperTransferNftTx({
+    const tx = await api.constructHyperTransferSplTx({
       fromHyperWalletPda: this.address,
       hyperWalletOwnerAddress: this.owner.address,
       toAddress,
-      nftMintAddress,
+      tokenMintAddress: nftMintAddress,
+      rawAmount: 1,
       otpHash,
       proofHash,
+      feeToken,
     });
     const recoveredTransaction = Transaction.from(Buffer.from(tx, "base64"));
     const signature = await this.owner.signAndSendTransaction(
@@ -159,30 +165,21 @@ export class HyperWallet implements IWallet {
   }
 
   async setupOtp() {
-    const TOTAL_OTP_CODES_COUNT = Math.pow(2, 10);
+    const TOTAL_OTP_CODES_COUNT = Math.pow(2, 20);
     const PERIOD_IN_SECONDS = 30;
+
     // Generate secret key
-    // TODO: round init time to be a multiple of period
     const initTimeInSeconds =
       Math.floor(Date.now() / 1000 / PERIOD_IN_SECONDS) * PERIOD_IN_SECONDS;
-    console.log(
-      "🚀 ~ HyperWallet ~ setupOtp ~ initTimeInSeconds:",
-      new Date(initTimeInSeconds * 1000)
-    );
     const secretKey = base32.Base32.encode(getRandomBytes(20), "RFC4648");
     // Generate OTP codes + build tree
     const leave_values = [];
-    let count = 0;
     for (let i = 0; i < TOTAL_OTP_CODES_COUNT; i++) {
       const timestamp = (initTimeInSeconds + i * PERIOD_IN_SECONDS) * 1000;
       const otp = totp.TOTP.generate(secretKey, {
         period: PERIOD_IN_SECONDS,
         timestamp,
       }).otp.toString();
-      if (count <= 10) {
-        console.log(new Date(timestamp).getMinutes(), otp);
-      }
-      count++;
       leave_values.push(otp);
     }
     const leave_hashes = leave_values.map((v) =>
@@ -196,7 +193,7 @@ export class HyperWallet implements IWallet {
     await save("merkle-tree", MerkleTree.marshalTree(tree));
 
     // Generate link + QR Code
-    const otpLink = `otpauth://totp/Hyper%Wallet:${this.address}?secret=${secretKey}&issuer=Hyper%20Wallet&algorithm=SHA1&digits=6&period=30`;
+    const otpLink = `otpauth://totp/Hyper%20Wallet:${this.address}?secret=${secretKey}&issuer=Hyper%20Wallet&algorithm=SHA1&digits=6&period=30`;
 
     // Submit root + init time
     const tx = await api.constructSetupOtpTx({
@@ -242,16 +239,11 @@ export class HyperWallet implements IWallet {
     return this._signAndSendTransaction(base64tx);
   }
   async addAddressToWhitelist(address: string) {
-    console.log("🚀 ~ HyperWallet ~ addAddressToWhitelist ~ address:", address);
     const base64tx = await api.constructAddToWhitelistTx({
       hyperWalletPda: this.address,
       hyperWalletOwnerAddress: this.owner.address,
       addressToBeAdded: address,
     });
-    console.log(
-      "🚀 ~ HyperWallet ~ addAddressToWhitelist ~ base64tx:",
-      base64tx
-    );
     return this._signAndSendTransaction(base64tx);
   }
   async removeAddressFromWhitelist(address: string) {
@@ -265,10 +257,6 @@ export class HyperWallet implements IWallet {
 
   private async _getOtpHashAndProofHash(otp: string | null) {
     if (!this._account_data.otpEnabled || !otp) {
-      console.log(
-        "🚀 ~ HyperWallet ~ _getOtpHashAndProofHash ~ otpEnabled:",
-        this.otpEnabled
-      );
       return {
         otpHash: null,
         proofHash: null,

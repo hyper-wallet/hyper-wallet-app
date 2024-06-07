@@ -82,6 +82,7 @@ export type ConstructHyperTransferNftTxParams = {
   nftMintAddress: string;
   otpHash: Buffer | null;
   proofHash: Buffer[] | null;
+  feeToken: "sol" | "usdt";
 };
 
 export type ConstructOtpSetupParams = {

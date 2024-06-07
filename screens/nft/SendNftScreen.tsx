@@ -5,6 +5,7 @@ import { styled } from "styled-components/native";
 import { Image } from "expo-image";
 import { Keyboard, TouchableWithoutFeedback } from "react-native";
 import { useAppStore } from "@/stores/appStore";
+import { fetchStringFromClipboard } from "@/utils";
 
 const Container = styled.View`
   flex: 1;
@@ -24,6 +25,7 @@ const Row = styled.View`
 `;
 
 const Input = styled.TextInput`
+  flex: 1;
   font-size: 18px;
   font-weight: 600;
   color: ${({ theme }) => theme.foreground.primary};
@@ -47,34 +49,42 @@ const Divider = styled.View`
   margin: 16px 0px;
 `;
 
-const AmountInput = styled.TextInput`
-  font-size: 32px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.foreground.primary};
-  margin: 4px 0px;
+const PillButton = styled.TouchableOpacity`
+  height: 32px;
+  border-radius: 100%;
+  background-color: ${({ theme }) => theme.background.secondary};
+  align-self: center;
+  align-items: center;
+  justify-content: center;
+  padding: 0px 16px;
 `;
 
-export const SendNftScreen: FC<ModalStackScreenProps<"SendNFT">> = (props) => {
-  const [amount, setAmount] = useState("");
+const PillButtonLabel = styled.Text`
+  font-size: 14px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.foreground.primary};
+`;
+
+export const SendNftScreen: FC<ModalStackScreenProps<"SendNft">> = (props) => {
   const [recipientAddress, setRecipientAddress] = useState("");
-  const [sending, setSending] = useState(false);
   const appStore = useAppStore();
 
   const { navigation, route } = props;
   const { nft } = route.params;
+
   const { metadata } = nft;
   const { name, symbol, image_uri, mint } = metadata;
   const { currentWallet } = appStore;
 
+  function paste() {
+    fetchStringFromClipboard().then(setRecipientAddress);
+  }
+
   function reviewSend() {
-    currentWallet
-      .transferNft({
-        toAddress: recipientAddress,
-        nftMintAddress: mint,
-      })
-      .then((signature) => console.log(signature))
-      .catch((e) => console.error(e))
-      .finally(() => setSending(false));
+    navigation.navigate("SendNftReview", {
+      nft,
+      toAddress: recipientAddress,
+    });
   }
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -85,24 +95,34 @@ export const SendNftScreen: FC<ModalStackScreenProps<"SendNFT">> = (props) => {
         <Title>{name}</Title>
         <Space height={16} />
         <Subtitle>Send to:</Subtitle>
-        <Input
-          placeholder="Enter Recipient address"
-          value={recipientAddress}
-          onChangeText={setRecipientAddress}
-          autoFocus
-        />
+        <Row>
+          <Input
+            placeholder="Enter Recipient address"
+            value={recipientAddress}
+            onChangeText={setRecipientAddress}
+            clearButtonMode="while-editing"
+            placeholderTextColor="rgba(0,0,0,0.3)"
+          />
+          <PillButton onPress={paste}>
+            <PillButtonLabel>Paste</PillButtonLabel>
+          </PillButton>
+        </Row>
         <Divider />
         {/* <Row>
           <Subtitle>Available</Subtitle>
           <Title>{mint.supply}</Title>
         </Row> */}
         <Space height={4} />
-        <Row>
+        {/* <Row>
           <Subtitle>Network fee</Subtitle>
           <Title>0.000005 SOL</Title>
-        </Row>
+        </Row> */}
         <Space />
-        <Button label="Review" onPress={reviewSend} />
+        <Button
+          label="Review"
+          onPress={reviewSend}
+          disabled={!recipientAddress}
+        />
         <Space insetBottom />
       </Container>
     </TouchableWithoutFeedback>

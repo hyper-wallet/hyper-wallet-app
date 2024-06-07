@@ -1,10 +1,9 @@
-import { Button, PasteButton, Space } from "@/components";
+import { Button, Space } from "@/components";
 import { ModalStackScreenProps } from "@/navigators";
 import { FC, useState } from "react";
 import { styled } from "styled-components/native";
 import { Image } from "expo-image";
 import { Keyboard, TouchableWithoutFeedback } from "react-native";
-import { useAppStore } from "@/stores/appStore";
 import { fetchStringFromClipboard } from "@/utils";
 
 const Container = styled.View`
@@ -78,7 +77,6 @@ export const SendTokenScreen: FC<ModalStackScreenProps<"SendToken">> = (
   const [recipientAddress, setRecipientAddress] = useState(
     "4ywgeyfbiYcAAqJTNtSY4DuCwQjnz9cctPR2S9twutbT"
   );
-  const { walletTokens } = useAppStore();
 
   const { navigation, route } = props;
   const { token } = route.params;

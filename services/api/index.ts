@@ -253,6 +253,9 @@ export class Api {
       hyperWalletOwnerAddress,
       toAddress,
       nftMintAddress,
+      otpHash,
+      proofHash,
+      feeToken,
     } = params;
     const res = await this._apisauce.post<ConstructTxReponse>(
       "/hyper-wallet/tx/transfer-nft",
@@ -261,6 +264,9 @@ export class Api {
         hyperWalletOwnerAddress,
         toAddress,
         nftMintAddress,
+        otpHash,
+        proofHash,
+        feeToken,
       }
     );
     if (!res.data) throw new Error("Error while constructing transaction");

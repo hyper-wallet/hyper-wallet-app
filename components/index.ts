@@ -8,3 +8,4 @@ export * from "./EmptyState";
 export * from "./Typography";
 export * from "./ModalSheet";
 export * from "./PasteButton";
+export * from "./FeeTokenSelector";

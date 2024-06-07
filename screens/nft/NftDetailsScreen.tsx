@@ -55,7 +55,7 @@ export const NFTDetailsScreen: FC<ModalStackScreenProps<"NFTDetails">> = (
   const { metadata } = nft;
   const { name, symbol, image_uri, mint, attributes } = metadata;
   const send = () => {
-    navigation.navigate("SendNFT", { nft });
+    navigation.navigate("SendNft", { nft });
   };
   return (
     <Container>

@@ -1,9 +1,10 @@
-import { FC } from "react";
-import { Button, Space } from "@/components";
+import { FC, useState } from "react";
+import { Button, FeeTokenSelector, SectionTitle, Space } from "@/components";
 import { ModalStackScreenProps } from "@/navigators";
 import { styled } from "styled-components/native";
 import { Image } from "expo-image";
 import { middleEllipsis } from "@/utils";
+import { useStores } from "@/hooks";
 
 const Container = styled.View`
   flex: 1;
@@ -67,14 +68,27 @@ export const SendNftReviewScreen: FC<ModalStackScreenProps<"SendNftReview">> = (
   props
 ) => {
   const { navigation, route } = props;
+  const [feeToken, setFeeToken] = useState<"sol" | "usdt">("sol");
+  const { appStore, hyperWalletStore, solanaWalletStore } = useStores();
+  const { currentWallet } = appStore;
   const { nft, toAddress } = route.params;
+
   const { metadata } = nft;
   const { image_uri } = metadata;
 
   function confirmSend() {
-    navigation.replace("SendNftResult", {
+    if (currentWallet == "hyper" && hyperWalletStore.account?.otpEnabled) {
+      return navigation.navigate("SendNftOtp", {
+        nft,
+        toAddress,
+        feeToken,
+      });
+    }
+    navigation.navigate("SendNftResult", {
       nft,
       toAddress,
+      otp: null,
+      feeToken,
     });
   }
 
@@ -97,6 +111,10 @@ export const SendNftReviewScreen: FC<ModalStackScreenProps<"SendNftReview">> = (
           <Subtitle>0.005$</Subtitle>
         </Row>
       </Card>
+      <Space height={24} />
+      <SectionTitle>Pay fee with</SectionTitle>
+      <Space height={8} />
+      <FeeTokenSelector feeToken={feeToken} setFeeToken={setFeeToken} />
       <Space />
       <Button label="Confirm" onPress={confirmSend} />
       <Space insetBottom />

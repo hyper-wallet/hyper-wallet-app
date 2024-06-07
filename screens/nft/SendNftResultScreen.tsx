@@ -4,9 +4,11 @@ import { ModalStackScreenProps } from "@/navigators";
 import { FC, useState } from "react";
 import { styled } from "styled-components/native";
 import { middleEllipsis } from "@/utils";
-import { useAppStore } from "@/stores/appStore";
 import { palette } from "@/theme/palette";
-import { useTheme } from "@/hooks";
+import { useStores, useTheme } from "@/hooks";
+import * as Linking from "expo-linking";
+import { api } from "@/services";
+import { WalletTransactionType } from "@/types";
 
 const Container = styled.View`
   flex: 1;
@@ -44,14 +46,15 @@ export const SendNftResultScreen: FC<ModalStackScreenProps<"SendNftResult">> = (
   const [sending, setSending] = useState(true);
   const [error, setError] = useState("");
   const [signature, setSignature] = useState("");
-  const appStore = useAppStore();
+  const { appStore, hyperWalletStore, solanaWalletStore } = useStores();
   const theme = useTheme();
   const { currentWallet } = appStore;
 
   const { navigation, route } = props;
-  const { nft, toAddress } = route.params;
+  const { nft, toAddress, otp, feeToken } = route.params;
+
   const { metadata } = nft;
-  const { name, symbol, mint } = metadata;
+  const { name, symbol, mint, image_uri } = metadata;
 
   useEffect(() => {
     send();
@@ -80,19 +83,47 @@ export const SendNftResultScreen: FC<ModalStackScreenProps<"SendNftResult">> = (
     : `Sent ${name} ${symbol.toUpperCase()} to ${middleEllipsis(toAddress)}`;
 
   function close() {
-    navigation.getParent().goBack();
+    navigation.getParent()?.goBack();
   }
 
-  function viewOnExplorer() {}
+  function viewOnExplorer() {
+    Linking.openURL(
+      `https://explorer.solana.com/tx/${signature}?cluster=devnet`
+    );
+  }
 
   async function send() {
     setSending(true);
-    currentWallet
-      .transferNft({
-        toAddress,
-        nftMintAddress: mint,
+
+    const wallet =
+      currentWallet == "hyper"
+        ? hyperWalletStore.wallet
+        : solanaWalletStore.wallet;
+
+    const promise = wallet?.transferNft({
+      toAddress,
+      nftMintAddress: mint,
+      otp,
+      feeToken,
+    });
+
+    if (!promise) return;
+    promise
+      .then((signature) => {
+        setSignature(signature);
+        api
+          .createTransaction({
+            signature,
+            type: WalletTransactionType.TransferNft,
+            fromAddress: wallet?.address ?? "",
+            toAddress,
+            token: { iconUrl: image_uri, name, symbol },
+            amount: "1",
+            value: "",
+          })
+          .then((res) => console.log(res))
+          .catch((e) => console.error(e));
       })
-      .then((signature) => setSignature(signature))
       .catch((error) => setError(error))
       .finally(() => setSending(false));
   }

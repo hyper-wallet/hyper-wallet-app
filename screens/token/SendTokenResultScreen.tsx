@@ -10,7 +10,7 @@ import { palette } from "@/theme/palette";
 import { useStores, useTheme } from "@/hooks";
 import * as Linking from "expo-linking";
 import { WalletTransactionType } from "@/types";
-import { api } from "@/services";
+import { apiService } from "@/services";
 
 const Container = styled.View`
   flex: 1;
@@ -132,7 +132,7 @@ export const SendTokenResultScreen: FC<
     promise
       .then((signature) => {
         setSignature(signature);
-        api
+        apiService
           .createTransaction({
             signature,
             type: WalletTransactionType.TransferLamports,

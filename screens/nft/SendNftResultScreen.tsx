@@ -7,7 +7,7 @@ import { middleEllipsis } from "@/utils";
 import { palette } from "@/theme/palette";
 import { useStores, useTheme } from "@/hooks";
 import * as Linking from "expo-linking";
-import { api } from "@/services";
+import { apiService } from "@/services";
 import { WalletTransactionType } from "@/types";
 
 const Container = styled.View`
@@ -111,7 +111,7 @@ export const SendNftResultScreen: FC<ModalStackScreenProps<"SendNftResult">> = (
     promise
       .then((signature) => {
         setSignature(signature);
-        api
+        apiService
           .createTransaction({
             signature,
             type: WalletTransactionType.TransferNft,

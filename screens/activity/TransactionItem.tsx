@@ -46,7 +46,10 @@ const TransactionIcon = (props) => {
   const { type, iconUrl } = props;
   if (!!iconUrl) {
     return (
-      <Image source={{ uri: iconUrl }} style={{ width: 48, height: 48 }} />
+      <Image
+        source={{ uri: iconUrl }}
+        style={{ width: 48, height: 48, borderRadius: 4 }}
+      />
     );
   }
   if (["setUpOtp", "enableOtp", "disableOtp"].includes(type)) {

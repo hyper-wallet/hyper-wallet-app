@@ -1,4 +1,4 @@
-import { PublicKey, Transaction } from "@solana/web3.js";
+import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
 import { SolanaWallet } from "@/lib/SolanaWallet";
 import { getHyperWalletPda } from "@/lib/utils";
 import IWallet from "./IWallet";
@@ -13,6 +13,8 @@ import { apiService } from "@/services";
 import { WalletNft, WalletToken } from "@/types";
 import { HYPER_PROGRAM_ID } from "./constants";
 import { Approver } from "./Approver";
+import * as bs58 from "bs58";
+import { LOCAL_STORE_KEYS, LocalStore } from "@/utils";
 
 export class HyperWallet implements IWallet {
   readonly isHyperWallet = true;
@@ -171,6 +173,52 @@ export class HyperWallet implements IWallet {
     const signature = await this.owner.signAndSendTransaction(
       approvedTransaction
     );
+    return signature;
+  }
+
+  async changeDeviceApprover() {
+    const newDevicePk = bs58.encode(Keypair.generate().secretKey);
+    const newDeviceApprover = new Approver(newDevicePk);
+
+    const tx = await apiService.constructHyperChangeApproverTx({
+      hyperWalletPda: this.address,
+      ownerAddress: this.owner.address,
+      newApprover: newDeviceApprover.address,
+      approver: this._cloudApprover.address,
+    });
+    const recoveredTransaction = Transaction.from(Buffer.from(tx, "base64"));
+    const approvedTransaction =
+      this._cloudApprover.signTransaction(recoveredTransaction);
+    const signature = await this.owner.signAndSendTransaction(
+      approvedTransaction
+    );
+
+    LocalStore.save(LOCAL_STORE_KEYS.DEVICE_PK, newDevicePk);
+    this._deviceApprover = newDeviceApprover;
+
+    return signature;
+  }
+
+  async changeCloudApprover() {
+    const newCloudPk = bs58.encode(Keypair.generate().secretKey);
+    const newCloudApprover = new Approver(newCloudPk);
+
+    const tx = await apiService.constructHyperChangeApproverTx({
+      hyperWalletPda: this.address,
+      ownerAddress: this.owner.address,
+      newApprover: newCloudApprover.address,
+      approver: this._deviceApprover.address,
+    });
+    const recoveredTransaction = Transaction.from(Buffer.from(tx, "base64"));
+    const approvedTransaction =
+      this._deviceApprover.signTransaction(recoveredTransaction);
+    const signature = await this.owner.signAndSendTransaction(
+      approvedTransaction
+    );
+
+    LocalStore.save(LOCAL_STORE_KEYS.CLOUD_PK, newCloudPk);
+    this._cloudApprover = newCloudApprover;
+
     return signature;
   }
 

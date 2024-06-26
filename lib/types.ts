@@ -17,6 +17,13 @@ export type ConstructCloseHyperWalletTxParams = {
   ownerAddress: string;
 };
 
+export type ConstructHyperChangeApproverTxParams = {
+  hyperWalletPda: string;
+  ownerAddress: string;
+  newApprover: string;
+  approver: string;
+};
+
 export type Base64Tx = string;
 
 export type Signature = string;

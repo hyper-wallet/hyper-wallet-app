@@ -69,6 +69,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     // Create or restore device key & cloud key
     let devicePk = await LocalStore.get(LOCAL_STORE_KEYS.DEVICE_PK);
     let cloudPk = await LocalStore.get(LOCAL_STORE_KEYS.CLOUD_PK);
+
     if (!devicePk) {
       devicePk = bs58.encode(Keypair.generate().secretKey);
       LocalStore.save(LOCAL_STORE_KEYS.DEVICE_PK, devicePk);
@@ -80,10 +81,9 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     const hyperWallet = new HyperWallet(
       solanaWallet,
-      new Approver(bs58.encode(Keypair.generate().secretKey)),
+      new Approver(devicePk),
       new Approver(cloudPk)
     );
-    await hyperWallet.init();
 
     useSolanaWalletStore.getState().init(solanaWallet);
     await useHyperWalletStore.getState().init(hyperWallet);

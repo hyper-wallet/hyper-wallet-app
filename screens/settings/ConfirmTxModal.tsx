@@ -25,18 +25,14 @@ const Card = styled.View`
 `;
 
 type Method =
-  | "enableOtp"
-  | "disableOtp"
-  | "setupOtp"
-  | "resetOtp"
+  | "changeDeviceApprover"
+  | "changeCloudApprover"
   | "enableWhitelist"
   | "disableWhitelist";
 
 const subtitleByMethod: Record<Method, string> = {
-  enableOtp: "Enable OTP",
-  disableOtp: "Disable OTP",
-  setupOtp: "Setup OTP",
-  resetOtp: "Reset OTP",
+  changeDeviceApprover: "Update Device Key",
+  changeCloudApprover: "Update Cloud Key",
   enableWhitelist: "Enable Whitelist",
   disableWhitelist: "Disable Whitelist",
 };
@@ -68,17 +64,11 @@ export const ConfirmTxModal = forwardRef<Modalize, ConfirmTxModalProps>(
         return;
       }
       switch (method) {
-        case "enableOtp":
-          promise = hyperWalletStore.wallet.enableOtp();
+        case "changeDeviceApprover":
+          promise = hyperWalletStore.wallet.changeDeviceApprover();
           break;
-        case "disableOtp":
-          promise = hyperWalletStore.wallet.disableOtp();
-          break;
-        case "setupOtp":
-          promise = hyperWalletStore.wallet.setupOtp();
-          break;
-        case "resetOtp":
-          promise = hyperWalletStore.wallet.setupOtp();
+        case "changeCloudApprover":
+          promise = hyperWalletStore.wallet.changeCloudApprover();
           break;
         case "enableWhitelist":
           promise = hyperWalletStore.wallet.enableWhitelist();

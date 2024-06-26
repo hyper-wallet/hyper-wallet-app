@@ -1,12 +1,10 @@
 import { FC } from "react";
 import { View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { RootTabScreenProps } from "@/navigators";
-import { SettingItem } from "./SettingItem";
-import { Divider, Space, Icon, Title } from "@/components";
+import { Divider, Space, Icon, Title, SectionTitle } from "@/components";
 import { useStores, useTheme } from "@/hooks";
 import { useAppStore } from "@/stores/appStore";
 import { SecuritySection } from "./SecuritySection";
-import { BackupSection } from "./BackupSection";
 import styled from "styled-components/native";
 import { palette } from "@/theme/palette";
 
@@ -40,6 +38,41 @@ export const SettingsScreen: FC<RootTabScreenProps<"Settings">> = () => {
   return (
     <Container>
       <SecuritySection />
+
+      <SectionTitle style={{ marginHorizontal: 16, marginBottom: 8 }}>
+        Settings
+      </SectionTitle>
+      <Card>
+        <TouchableOpacity onPress={closeWallet}>
+          <Row>
+            <Icon name="ri-file-list-line" size={20} />
+            <Space width={4} />
+            <Title>Whitelist</Title>
+            <Space />
+          </Row>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={closeWallet}>
+          <Row>
+            <Icon name="ri-search-line" size={20} />
+            <Space width={4} />
+            <Title>Explorer</Title>
+            <Space />
+          </Row>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={closeWallet}>
+          <Row>
+            <Icon name="ri-global-line" size={20} />
+            <Space width={4} />
+            <Title>Network</Title>
+            <Space />
+          </Row>
+        </TouchableOpacity>
+      </Card>
+      <Space height={16} />
+
+      <SectionTitle style={{ marginHorizontal: 16, marginBottom: 8 }}>
+        Danger
+      </SectionTitle>
       <Card>
         <TouchableOpacity onPress={removeWallet}>
           <Row>
@@ -49,20 +82,15 @@ export const SettingsScreen: FC<RootTabScreenProps<"Settings">> = () => {
               color={palette.red[50]}
             />
             <Space width={4} />
-            <Title style={{ color: palette.red[50] }}>Remove wallet</Title>
+            <Title style={{ color: palette.red[50] }}>
+              Remove wallet from app
+            </Title>
             <Space />
           </Row>
         </TouchableOpacity>
-      </Card>
-
-      <Card>
         <TouchableOpacity onPress={closeWallet}>
           <Row>
-            <Icon
-              name="ri-delete-bin-7-line"
-              size={20}
-              color={palette.red[50]}
-            />
+            <Icon name="ri-shut-down-line" size={20} color={palette.red[50]} />
             <Space width={4} />
             <Title style={{ color: palette.red[50] }}>Close wallet</Title>
             <Space />

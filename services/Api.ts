@@ -3,6 +3,7 @@ import {
   Base64Tx,
   ConstructCloseHyperWalletTxParams,
   ConstructCreateHyperWalletTxParams,
+  ConstructHyperChangeApproverTxParams,
   HyperWalletAccount,
 } from "@/lib/types";
 import {
@@ -182,6 +183,23 @@ class Api {
       {
         hyperWalletPda,
         ownerAddress,
+      }
+    );
+    if (!res.data) throw new Error("Error while constructing transaction");
+    return res.data.base64tx;
+  }
+
+  async constructHyperChangeApproverTx(
+    params: ConstructHyperChangeApproverTxParams
+  ) {
+    const { hyperWalletPda, ownerAddress, newApprover, approver } = params;
+    const res = await this._apisauce.post<ConstructTxReponse>(
+      "/hyper-wallet/tx/change-approver",
+      {
+        hyperWalletPda,
+        ownerAddress,
+        newApprover,
+        approver,
       }
     );
     if (!res.data) throw new Error("Error while constructing transaction");

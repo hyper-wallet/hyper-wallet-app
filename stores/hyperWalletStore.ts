@@ -15,7 +15,7 @@ interface HyperWalletState {
   setAccount: (data: any) => void;
   getTokens: () => Promise<void>;
   getNfts: () => Promise<void>;
-  getTransactions: (lastLoadedSignature?: string) => Promise<void>;
+  getTransactions: () => Promise<void>;
 }
 
 export const useHyperWalletStore = create<HyperWalletState>((set, get) => ({
@@ -25,8 +25,8 @@ export const useHyperWalletStore = create<HyperWalletState>((set, get) => ({
   wallet: null,
   account: null,
   init: async (hyperWallet: HyperWallet) => {
-    // const account = await hyperWallet.getHyperWalletAccount();
-    set({ wallet: hyperWallet });
+    const account = await hyperWallet.getOrCreateHyperWalletAccount();
+    set({ wallet: hyperWallet, account });
   },
   setAccount: (data: any) => {
     set((s) => ({
@@ -50,11 +50,11 @@ export const useHyperWalletStore = create<HyperWalletState>((set, get) => ({
     const nfts = await wallet.getNfts();
     set({ nfts });
   },
-  getTransactions: async (lastLoadedSignature?: string) => {
+  getTransactions: async () => {
     const wallet = get().wallet;
     if (!wallet) return;
 
-    const transactions = await wallet.getTransactions(lastLoadedSignature);
+    const transactions = await wallet.getTransactions();
     set({ transactions });
   },
 }));

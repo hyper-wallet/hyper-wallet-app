@@ -6,12 +6,15 @@ import { SettingItem } from "./SettingItem";
 import { HyperWallet } from "@/lib/HyperWallet";
 import { Approver } from "@/lib/Approver";
 import { palette } from "@/theme/palette";
+import { ConfirmTxModal } from "./ConfirmTxModal";
+import { Modalize } from "react-native-modalize";
+import { useRef } from "react";
 
 const Container = styled.View`
   padding: 16px;
 `;
 
-const Card = styled.View`
+const Card = styled.TouchableOpacity`
   border-radius: 16px;
   background-color: rgba(0, 0, 0, 0.03);
   flex: 1;
@@ -56,12 +59,15 @@ const ApproverStatus = (props: {
 export const SecuritySection = () => {
   const { hyperWalletStore } = useStores();
 
+  const changeDeviceApproverModal = useRef<Modalize>(null);
+  const changeCloudApproverModal = useRef<Modalize>(null);
+
   return (
     <Container>
       <SectionTitle>Security</SectionTitle>
       <Space height={8} />
       <Row>
-        <Card>
+        <Card onPress={() => changeDeviceApproverModal.current?.open()}>
           <Title>Device Key</Title>
           <Space height={4} />
           <Subtitle numberOfLines={1} ellipsizeMode="middle">
@@ -74,7 +80,7 @@ export const SecuritySection = () => {
           />
         </Card>
         <Space width={16} />
-        <Card>
+        <Card onPress={() => changeCloudApproverModal.current?.open()}>
           <Title>Cloud Key</Title>
           <Space height={4} />
           <Subtitle numberOfLines={1} ellipsizeMode="middle">
@@ -88,7 +94,20 @@ export const SecuritySection = () => {
         </Card>
       </Row>
 
-      <SettingItem iconName="ri-contacts-book-line" title="Whitelist" />
+      <ConfirmTxModal
+        ref={changeDeviceApproverModal}
+        method="changeDeviceApprover"
+        onConfirmed={() => {
+          // hyperWalletStore.setAccount({ otpEnabled: true });
+        }}
+      />
+      <ConfirmTxModal
+        ref={changeCloudApproverModal}
+        method="changeCloudApprover"
+        onConfirmed={() => {
+          // hyperWalletStore.setAccount({ otpEnabled: true });
+        }}
+      />
     </Container>
   );
 };

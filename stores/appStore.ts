@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { SolanaWallet } from "@/lib/SolanaWallet";
 import { HyperWallet } from "@/lib/HyperWallet";
 import { networkService, socialAuthService } from "@/services";
-import { load, loadString, save, saveString } from "@/utils";
+import { LOCAL_STORE_KEYS, LocalStore } from "@/utils";
 import {
   WalletNft,
   WalletSettings,
@@ -11,6 +11,8 @@ import {
 } from "@/types";
 import { useSolanaWalletStore } from "./solanaWalletStore";
 import { useHyperWalletStore } from "./hyperWalletStore";
+import { Keypair } from "@solana/web3.js";
+import * as bs58 from "bs58";
 
 interface AppState {
   initialized: boolean;
@@ -46,19 +48,15 @@ export const useAppStore = create<AppState>((set, get) => ({
     defaultWallet: "hyper",
   },
   init: async () => {
-    // Recover settings
-    const savedSettings = await getSettings();
-    if (!savedSettings) {
-      saveSettings({ defaultWallet: "hyper" });
-    } else {
-      set({ walletSettings: savedSettings });
-    }
+    // TODO: Recover setttings
 
     const privateKey =
-      socialAuthService.getPrivateKey() || (await loadString("private-key"));
+      socialAuthService.getPrivateKey() ||
+      (await LocalStore.get(LOCAL_STORE_KEYS.USER_PK));
     if (privateKey) {
       await get().initWallet(privateKey);
     }
+
     // Init Stores and Services
     await socialAuthService.init();
 
@@ -69,12 +67,28 @@ export const useAppStore = create<AppState>((set, get) => ({
       privateKey,
       networkService.connection
     );
-    const hyperWallet = new HyperWallet(solanaWallet);
+
+    // Create or restore device key & cloud key
+    let devicePk = await LocalStore.get(LOCAL_STORE_KEYS.DEVICE_PK);
+    let cloudPk = await LocalStore.get(LOCAL_STORE_KEYS.CLOUD_PK);
+    if (!devicePk) {
+      devicePk = bs58.encode(Keypair.generate().secretKey);
+      LocalStore.save(LOCAL_STORE_KEYS.DEVICE_PK, devicePk);
+    }
+    if (!cloudPk) {
+      cloudPk = bs58.encode(Keypair.generate().secretKey);
+      LocalStore.save(LOCAL_STORE_KEYS.CLOUD_PK, cloudPk);
+    }
+
+    const hyperWallet = new HyperWallet(solanaWallet, devicePk, cloudPk);
+    await hyperWallet.init();
 
     useSolanaWalletStore.getState().init(solanaWallet);
     await useHyperWalletStore.getState().init(hyperWallet);
 
     const currentWallet = get().walletSettings.defaultWallet;
+
+    LocalStore.save(LOCAL_STORE_KEYS.USER_PK, privateKey);
     set({
       currentWallet,
       hasWallet: true,
@@ -85,7 +99,6 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
   importPrivateKey: async (privateKey: string) => {
     set({ creatingWallet: true });
-    saveString("private-key", privateKey);
     await get().initWallet(privateKey);
     set({ creatingWallet: false });
   },
@@ -112,15 +125,3 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
 }));
-
-async function saveSettings(newSettings: any) {
-  const savedSettings = await load("settings");
-  return save("settings", {
-    ...savedSettings,
-    ...newSettings,
-  });
-}
-
-async function getSettings() {
-  return load("settings");
-}

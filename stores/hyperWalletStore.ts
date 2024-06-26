@@ -25,8 +25,8 @@ export const useHyperWalletStore = create<HyperWalletState>((set, get) => ({
   wallet: null,
   account: null,
   init: async (hyperWallet: HyperWallet) => {
-    const account = await hyperWallet.getHyperWalletAccount();
-    set({ wallet: hyperWallet, account });
+    // const account = await hyperWallet.getHyperWalletAccount();
+    set({ wallet: hyperWallet });
   },
   setAccount: (data: any) => {
     set((s) => ({

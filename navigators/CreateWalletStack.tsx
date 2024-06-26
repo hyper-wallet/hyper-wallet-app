@@ -1,5 +1,6 @@
 import { WelcomeScreen, ImportPrivateKeyScreen } from "@/screens";
 import { SelectImportMethodScreen } from "@/screens/createWallet/SelectImportMethodScreen";
+import { WalletsPreviewScreen } from "@/screens/createWallet/WalletsPreviewScreen";
 import {
   createNativeStackNavigator,
   NativeStackScreenProps,
@@ -12,10 +13,13 @@ export type CreateWalletStackParamList = {
   SelectGenerateMethod: undefined;
   ImportPrivateKey: undefined;
   ImportRecoveryPhrase: undefined;
+  WalletsPreview: {
+    privateKey: string;
+  };
 };
 
 export type CreateWalletScreenProps<
-  T extends keyof CreateWalletStackParamList
+  T extends keyof CreateWalletStackParamList,
 > = NativeStackScreenProps<CreateWalletStackParamList, T>;
 
 const Stack = createNativeStackNavigator<CreateWalletStackParamList>();
@@ -41,6 +45,11 @@ export const CreateWalletStack = () => {
         name="ImportPrivateKey"
         component={ImportPrivateKeyScreen}
         options={{ title: "Import with Private Key" }}
+      />
+      <Stack.Screen
+        name="WalletsPreview"
+        component={WalletsPreviewScreen}
+        options={{ title: "Wallets Preview" }}
       />
     </Stack.Navigator>
   );

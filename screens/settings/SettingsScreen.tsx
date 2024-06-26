@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { RootTabScreenProps } from "@/navigators";
 import { SettingItem } from "./SettingItem";
 import { Divider, Space, Icon, Title } from "@/components";
-import { useTheme } from "@/hooks";
+import { useStores, useTheme } from "@/hooks";
 import { useAppStore } from "@/stores/appStore";
 import { SecuritySection } from "./SecuritySection";
 import { BackupSection } from "./BackupSection";
@@ -28,14 +28,17 @@ const Row = styled.View`
   padding: 0 16px;
 `;
 
-export const SettingsScreen: FC<RootTabScreenProps<"NFT">> = () => {
+export const SettingsScreen: FC<RootTabScreenProps<"Settings">> = () => {
   const theme = useTheme();
   const { removeWallet } = useAppStore();
+  const { hyperWalletStore } = useStores();
+
+  function closeWallet() {
+    hyperWalletStore.wallet?.closeHyperWalletAccount().then(removeWallet);
+  }
 
   return (
     <Container>
-      <Space height={16} />
-      <BackupSection />
       <SecuritySection />
       <Card>
         <TouchableOpacity onPress={removeWallet}>
@@ -47,6 +50,21 @@ export const SettingsScreen: FC<RootTabScreenProps<"NFT">> = () => {
             />
             <Space width={4} />
             <Title style={{ color: palette.red[50] }}>Remove wallet</Title>
+            <Space />
+          </Row>
+        </TouchableOpacity>
+      </Card>
+
+      <Card>
+        <TouchableOpacity onPress={closeWallet}>
+          <Row>
+            <Icon
+              name="ri-delete-bin-7-line"
+              size={20}
+              color={palette.red[50]}
+            />
+            <Space width={4} />
+            <Title style={{ color: palette.red[50] }}>Close wallet</Title>
             <Space />
           </Row>
         </TouchableOpacity>

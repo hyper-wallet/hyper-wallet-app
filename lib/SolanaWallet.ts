@@ -51,7 +51,7 @@ export class SolanaWallet implements IWallet {
   }
 
   async getTransactions(
-    lastLoadedSignature?: string
+    lastLoadedSignature?: string,
   ): Promise<WalletTransaction[]> {
     const transactions = await apiService.getTransactions(this.address);
     return transactions;
@@ -107,8 +107,24 @@ export class SolanaWallet implements IWallet {
     const signedTx = this.signTransaction(tx);
     const signature = await this._connection.sendRawTransaction(
       signedTx.serialize(),
-      { skipPreflight: true }
+      { skipPreflight: true },
     );
     return signature;
+  }
+
+  static getAddressFromPrivateKey(privateKey: string) {
+    return this.getKeypairFromPrivateKey(privateKey).publicKey.toString();
+  }
+
+  static getKeypairFromPrivateKey(privateKey: string): Keypair {
+    let keypair: Keypair;
+    if (privateKey.length == 128) {
+      // This is a 128-byte hexadecimal private key
+      keypair = Keypair.fromSecretKey(Buffer.from(privateKey, "hex"));
+    } else {
+      const secretKey = bs58.decode(privateKey);
+      keypair = Keypair.fromSecretKey(secretKey);
+    }
+    return keypair;
   }
 }

@@ -3,17 +3,13 @@ import { PublicKey } from "@solana/web3.js";
 
 export type HyperWalletAccount = {
   owner: PublicKey;
-  whitelistEnabled: boolean;
-  whitelistedAddresses: string[];
-  otpEnabled: boolean;
-  otpRoot: Buffer;
-  otpInitTime: number;
-  spendingLimit: number;
+  voters: string[];
 };
 
 export type ConstructCreateHyperWalletTxParams = {
   hyperWalletPda: string;
   ownerAddress: string;
+  voters: string[];
 };
 
 export type ConstructCloseHyperWalletTxParams = {

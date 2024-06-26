@@ -55,12 +55,14 @@ export const ImportPrivateKeyScreen: FC<
 > = () => {
   const [privateKey, setPrivateKey] = useState<string>("");
   const [importing, setImporting] = useState(false);
+  const { navigation } = props;
   const insets = useSafeAreaInsets();
   const appStore = useAppStore();
 
   function submitImport() {
-    setImporting(true);
-    appStore.importPrivateKey(privateKey).finally(() => setImporting(false));
+    // setImporting(true);
+    // appStore.importPrivateKey(privateKey).finally(() => setImporting(false));
+    navigation.navigate("WalletsPreview", { privateKey });
   }
 
   function paste() {

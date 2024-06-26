@@ -1,10 +1,12 @@
-import { Button, Space } from "@/components";
+import { Button, Icon, Space } from "@/components";
 import { ModalStackScreenProps } from "@/navigators";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { styled } from "styled-components/native";
 import { Image } from "expo-image";
 import { Keyboard, TouchableWithoutFeedback } from "react-native";
 import { fetchStringFromClipboard } from "@/utils";
+import { PublicKey } from "@solana/web3.js";
+import { palette } from "@/theme/palette";
 
 const Container = styled.View`
   flex: 1;
@@ -77,12 +79,31 @@ export const SendTokenScreen: FC<ModalStackScreenProps<"SendToken">> = (
   const [recipientAddress, setRecipientAddress] = useState(
     "4ywgeyfbiYcAAqJTNtSY4DuCwQjnz9cctPR2S9twutbT"
   );
+  const [addressError, setAddressError] = useState("");
+  const [amountError, setAmountError] = useState("");
 
   const { navigation, route } = props;
   const { token } = route.params;
 
   const { balance, metadata } = token;
   const { name, symbol, image } = metadata;
+
+  useEffect(() => {
+    try {
+      if (recipientAddress != "") new PublicKey(recipientAddress);
+      setAddressError("");
+    } catch (e) {
+      setAddressError("Not a valid address");
+    }
+  }, [recipientAddress]);
+
+  useEffect(() => {
+    if (parseFloat(amount.replace(",", ".")) > balance) {
+      setAmountError("Insufficient fund");
+    } else {
+      setAmountError("");
+    }
+  }, [amount]);
 
   function paste() {
     fetchStringFromClipboard().then(setRecipientAddress);
@@ -117,6 +138,14 @@ export const SendTokenScreen: FC<ModalStackScreenProps<"SendToken">> = (
             <PillButtonLabel>Paste</PillButtonLabel>
           </PillButton>
         </Row>
+        {addressError && (
+          <Row style={{ justifyContent: "flex-start", gap: 4 }}>
+            <Icon name="ri-error-warning-line" color={palette.red[50]} />
+            <Subtitle style={{ color: palette.red[50] }}>
+              {addressError}
+            </Subtitle>
+          </Row>
+        )}
         <Space height={16} />
         <Subtitle>Amount:</Subtitle>
         <AmountInput
@@ -126,6 +155,14 @@ export const SendTokenScreen: FC<ModalStackScreenProps<"SendToken">> = (
           onChangeText={setAmount}
           placeholderTextColor="rgba(0,0,0,0.3)"
         />
+        {amountError && (
+          <Row style={{ justifyContent: "flex-start", gap: 4 }}>
+            <Icon name="ri-error-warning-line" color={palette.red[50]} />
+            <Subtitle style={{ color: palette.red[50] }}>
+              {amountError}
+            </Subtitle>
+          </Row>
+        )}
         <Divider />
         <Row>
           <Subtitle>Available</Subtitle>
@@ -142,7 +179,9 @@ export const SendTokenScreen: FC<ModalStackScreenProps<"SendToken">> = (
         <Button
           label="Review"
           onPress={reviewSend}
-          disabled={!recipientAddress || !amount}
+          disabled={
+            !recipientAddress || !amount || !!addressError || !!amountError
+          }
         />
         <Space insetBottom />
       </Container>

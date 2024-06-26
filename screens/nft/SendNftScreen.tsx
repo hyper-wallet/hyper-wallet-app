@@ -1,11 +1,13 @@
-import { Button, Space } from "@/components";
+import { Button, Icon, Space } from "@/components";
 import { ModalStackScreenProps } from "@/navigators";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { styled } from "styled-components/native";
 import { Image } from "expo-image";
 import { Keyboard, TouchableWithoutFeedback } from "react-native";
 import { useAppStore } from "@/stores/appStore";
 import { fetchStringFromClipboard } from "@/utils";
+import { PublicKey } from "@solana/web3.js";
+import { palette } from "@/theme/palette";
 
 const Container = styled.View`
   flex: 1;
@@ -68,6 +70,7 @@ const PillButtonLabel = styled.Text`
 export const SendNftScreen: FC<ModalStackScreenProps<"SendNft">> = (props) => {
   const [recipientAddress, setRecipientAddress] = useState("");
   const appStore = useAppStore();
+  const [addressError, setAddressError] = useState("");
 
   const { navigation, route } = props;
   const { nft } = route.params;
@@ -75,6 +78,15 @@ export const SendNftScreen: FC<ModalStackScreenProps<"SendNft">> = (props) => {
   const { metadata } = nft;
   const { name, symbol, image_uri, mint } = metadata;
   const { currentWallet } = appStore;
+
+  useEffect(() => {
+    try {
+      if (recipientAddress != "") new PublicKey(recipientAddress);
+      setAddressError("");
+    } catch (e) {
+      setAddressError("Not a valid address");
+    }
+  }, [recipientAddress]);
 
   function paste() {
     fetchStringFromClipboard().then(setRecipientAddress);
@@ -107,6 +119,14 @@ export const SendNftScreen: FC<ModalStackScreenProps<"SendNft">> = (props) => {
             <PillButtonLabel>Paste</PillButtonLabel>
           </PillButton>
         </Row>
+        {addressError && (
+          <Row style={{ justifyContent: "flex-start", gap: 4 }}>
+            <Icon name="ri-error-warning-line" color={palette.red[50]} />
+            <Subtitle style={{ color: palette.red[50] }}>
+              {addressError}
+            </Subtitle>
+          </Row>
+        )}
         <Divider />
         {/* <Row>
           <Subtitle>Available</Subtitle>

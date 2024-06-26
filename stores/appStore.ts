@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { SolanaWallet } from "@/lib/SolanaWallet";
 import { HyperWallet } from "@/lib/HyperWallet";
 import { networkService, socialAuthService } from "@/services";
-import { load, loadString, save } from "@/utils";
+import { load, loadString, save, saveString } from "@/utils";
 import {
   WalletNft,
   WalletSettings,
@@ -85,6 +85,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
   importPrivateKey: async (privateKey: string) => {
     set({ creatingWallet: true });
+    saveString("private-key", privateKey);
     await get().initWallet(privateKey);
     set({ creatingWallet: false });
   },

@@ -17,7 +17,13 @@ import * as totp from "totp-generator";
 import { MerkleTree } from "merkletreejs";
 //@ts-ignore
 import { createHash } from "crypto-browserify";
-import { load, save } from "@/utils";
+import {
+  LocalStore,
+  SECURE_STORE_KEYS,
+  SecureStore,
+  load,
+  save,
+} from "@/utils";
 
 export class HyperWallet implements IWallet {
   private _pda: PublicKey;
@@ -114,9 +120,8 @@ export class HyperWallet implements IWallet {
       proofHash,
     });
     const recoveredTransaction = Transaction.from(Buffer.from(tx, "base64"));
-    const signature = await this.owner.signAndSendTransaction(
-      recoveredTransaction
-    );
+    const signature =
+      await this.owner.signAndSendTransaction(recoveredTransaction);
     return signature;
   }
 
@@ -134,9 +139,8 @@ export class HyperWallet implements IWallet {
       feeToken,
     });
     const recoveredTransaction = Transaction.from(Buffer.from(tx, "base64"));
-    const signature = await this.owner.signAndSendTransaction(
-      recoveredTransaction
-    );
+    const signature =
+      await this.owner.signAndSendTransaction(recoveredTransaction);
     return signature;
   }
 
@@ -154,20 +158,20 @@ export class HyperWallet implements IWallet {
       feeToken,
     });
     const recoveredTransaction = Transaction.from(Buffer.from(tx, "base64"));
-    const signature = await this.owner.signAndSendTransaction(
-      recoveredTransaction
-    );
+    const signature =
+      await this.owner.signAndSendTransaction(recoveredTransaction);
     return signature;
   }
 
   async setupOtp() {
-    const TOTAL_OTP_CODES_COUNT = Math.pow(2, 20);
+    const TOTAL_OTP_CODES_COUNT = Math.pow(2, 16);
     const PERIOD_IN_SECONDS = 30;
 
     // Generate secret key
     const initTimeInSeconds =
       Math.floor(Date.now() / 1000 / PERIOD_IN_SECONDS) * PERIOD_IN_SECONDS;
     const secretKey = base32.Base32.encode(getRandomBytes(20), "RFC4648");
+
     // Generate OTP codes + build tree
     const leave_values = [];
     for (let i = 0; i < TOTAL_OTP_CODES_COUNT; i++) {
@@ -179,14 +183,17 @@ export class HyperWallet implements IWallet {
       leave_values.push(otp);
     }
     const leave_hashes = leave_values.map((v) =>
-      createHash("sha256").update(v).digest()
+      createHash("sha256").update(v).digest(),
     );
     const tree = new MerkleTree(leave_hashes, (data: any) =>
-      createHash("sha256").update(data).digest()
+      createHash("sha256").update(data).digest(),
     );
 
     // Save tree
-    await save("merkle-tree", MerkleTree.marshalTree(tree));
+    await LocalStore.save(
+      SECURE_STORE_KEYS.OTP_MERKLE_TREE,
+      MerkleTree.marshalTree(tree),
+    );
 
     // Generate link + QR Code
     const otpLink = `otpauth://totp/Hyper%20Wallet:${this.address}?secret=${secretKey}&issuer=Hyper%20Wallet&algorithm=SHA1&digits=6&period=30`;
@@ -199,9 +206,8 @@ export class HyperWallet implements IWallet {
       root: tree.getRoot(),
     });
     const recoveredTransaction = Transaction.from(Buffer.from(tx, "base64"));
-    const signature = await this.owner.signAndSendTransaction(
-      recoveredTransaction
-    );
+    const signature =
+      await this.owner.signAndSendTransaction(recoveredTransaction);
     return { signature, secretKey, otpLink };
   }
 
@@ -252,14 +258,14 @@ export class HyperWallet implements IWallet {
   }
 
   private async _getOtpHashAndProofHash(otp: string | null) {
-    if (!this._account_data.otpEnabled || !otp) {
+    const jsonTree = await LocalStore.get(SECURE_STORE_KEYS.OTP_MERKLE_TREE);
+    if (!this._account_data.otpEnabled || !otp || !jsonTree) {
       return {
         otpHash: null,
         proofHash: null,
       };
     }
     const otpHash = createHash("sha256").update(otp).digest();
-    const jsonTree = await load("merkle-tree");
     const tree = MerkleTree.unmarshalTree(jsonTree);
     const proof = tree.getProof(otpHash);
     const proofHash = proof.map((v) => Buffer.from(v.data));
@@ -271,11 +277,10 @@ export class HyperWallet implements IWallet {
 
   private async _signAndSendTransaction(base64tx: string): Promise<string> {
     const recoveredTransaction = Transaction.from(
-      Buffer.from(base64tx, "base64")
+      Buffer.from(base64tx, "base64"),
     );
-    const signature = await this.owner.signAndSendTransaction(
-      recoveredTransaction
-    );
+    const signature =
+      await this.owner.signAndSendTransaction(recoveredTransaction);
     return signature;
   }
 }

@@ -70,15 +70,15 @@ export const TokenDetailsScreen: FC<ModalStackScreenProps<"TokenDetails">> = (
 ) => {
   const { navigation, route } = props;
   const insets = useSafeAreaInsets();
+  const { token } = route.params;
   const [stats, setStats] = useState({
     high_3m_usd: 0,
-    high_24h_usd: 0,
+    high_24h_usd: token.marketData?.high_24h,
     low_3m_usd: 0,
-    low_24h_usd: 0,
+    low_24h_usd: token.marketData?.low_24h,
   });
-  const { token } = route.params;
 
-  const { balance, metadata, price } = token;
+  const { balance, metadata, marketData } = token;
   const { name, symbol, image, mint_address } = metadata;
 
   const send = () => {
@@ -96,10 +96,12 @@ export const TokenDetailsScreen: FC<ModalStackScreenProps<"TokenDetails">> = (
       <CoinIcon source={{ uri: image }} />
       <Row>
         <Name>{name}</Name>
-        <PriceChange change={price.usd_24h_change.toFixed(2)} />
+        <PriceChange
+          change={marketData?.price_change_percentage_24h.toFixed(2)}
+        />
       </Row>
       <Row>
-        <UsdPrice>${price.usd.toFixed(2)}</UsdPrice>
+        <UsdPrice>${marketData?.current_price.toFixed(2)}</UsdPrice>
         <Date>Today</Date>
       </Row>
       <Space height={16} />
@@ -113,7 +115,10 @@ export const TokenDetailsScreen: FC<ModalStackScreenProps<"TokenDetails">> = (
         <Column align="flex-end">
           <Subtitle>Value</Subtitle>
           <Title>
-            ${(balance * (price.usd as unknown as number)).toFixed(2)}
+            $
+            {(
+              balance * (marketData?.current_price as unknown as number)
+            ).toFixed(2)}
           </Title>
         </Column>
       </Row>
@@ -132,15 +137,11 @@ export const TokenDetailsScreen: FC<ModalStackScreenProps<"TokenDetails">> = (
 
       <Divider />
 
-      <MarketStats
-        stats={stats}
-        marketCap={price.usd_market_cap}
-        volume={price.usd_24h_vol}
-      />
+      <MarketStats marketData={marketData} />
 
       <Divider />
 
-      <About supply={0} mint_address={mint_address} />
+      <About supply={marketData?.total_supply} mint_address={mint_address} />
 
       <Space height={insets.bottom} />
     </Container>

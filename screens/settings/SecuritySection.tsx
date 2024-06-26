@@ -23,12 +23,7 @@ const Row = styled.View`
 `;
 
 export const SecuritySection = () => {
-  const navigation = useNavigation();
   const { hyperWalletStore } = useStores();
-  console.log(
-    "🚀 ~ SecuritySection ~ hyperWalletStore:",
-    hyperWalletStore.wallet?.voters
-  );
 
   return (
     <Container>
@@ -39,7 +34,7 @@ export const SecuritySection = () => {
           <Title>Device Key</Title>
           <Space height={4} />
           <Subtitle numberOfLines={1} ellipsizeMode="middle">
-            {hyperWalletStore.wallet?.deviceKeyAddress}
+            {hyperWalletStore.wallet?.deviceApprover.address}
           </Subtitle>
         </Card>
         <Space width={16} />
@@ -47,7 +42,7 @@ export const SecuritySection = () => {
           <Title>Cloud Key</Title>
           <Space height={4} />
           <Subtitle numberOfLines={1} ellipsizeMode="middle">
-            {hyperWalletStore.wallet?.cloudKeyAddress}
+            {hyperWalletStore.wallet?.cloudApprover.address}
           </Subtitle>
         </Card>
       </Row>

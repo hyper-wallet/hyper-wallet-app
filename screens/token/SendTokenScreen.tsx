@@ -81,8 +81,8 @@ export const SendTokenScreen: FC<ModalStackScreenProps<"SendToken">> = (
   const { navigation, route } = props;
   const { token } = route.params;
 
-  const { balance, metadata, price } = token;
-  const { name, symbol, image, mint_address } = metadata;
+  const { balance, metadata } = token;
+  const { name, symbol, image } = metadata;
 
   function paste() {
     fetchStringFromClipboard().then(setRecipientAddress);

@@ -47,7 +47,7 @@ const PriceColumn = styled.View`
 type TokenItemProps = TouchableOpacityProps & WalletToken;
 
 export const TokenItem: FC<TokenItemProps> = (props) => {
-  const { balance, metadata, price, ...rest } = props;
+  const { balance, metadata, marketData, ...rest } = props;
   const { name, symbol, image, decimals } = metadata;
   return (
     <Container {...rest}>
@@ -64,9 +64,14 @@ export const TokenItem: FC<TokenItemProps> = (props) => {
       </BalanceColumn>
       <PriceColumn>
         <UsdBalance>
-          ${(balance * (price.usd as unknown as number)).toFixed(2)}
+          $
+          {(balance * (marketData?.current_price as unknown as number)).toFixed(
+            2
+          )}
         </UsdBalance>
-        <PriceChange change={price.usd_24h_change?.toFixed(2)} />
+        <PriceChange
+          change={marketData?.price_change_percentage_24h?.toFixed(2)}
+        />
       </PriceColumn>
     </Container>
   );

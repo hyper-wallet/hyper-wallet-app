@@ -55,7 +55,7 @@ export const SendTokenResultScreen: FC<
   const { navigation, route } = props;
   const { token, toAddress, amount, feeToken } = route.params;
 
-  const { metadata, price } = token;
+  const { metadata, marketData } = token;
   const { image, name, symbol, mint_address } = metadata;
 
   useEffect(() => {
@@ -136,7 +136,13 @@ export const SendTokenResultScreen: FC<
             type: WalletTransactionType.TransferLamports,
             fromAddress: wallet?.address ?? "",
             toAddress,
-            token: { iconUrl: image, name, symbol, amount, price: price.usd },
+            token: {
+              iconUrl: image,
+              name,
+              symbol,
+              amount,
+              price: marketData?.current_price,
+            },
           })
           .then((res) => console.log(res))
           .catch((e) => console.error(e));
@@ -149,7 +155,13 @@ export const SendTokenResultScreen: FC<
             type: WalletTransactionType.TransferLamports,
             fromAddress: wallet?.address ?? "",
             toAddress,
-            token: { iconUrl: image, name, symbol, amount, price: price.usd },
+            token: {
+              iconUrl: image,
+              name,
+              symbol,
+              amount,
+              price: marketData?.current_price,
+            },
             error: error.message,
           })
           .then((res) => console.log(res))

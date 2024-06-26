@@ -1,13 +1,10 @@
 import { Space } from "@/components";
-import { MarkteStats as TMarketStats } from "@/types";
 import { formatNumber } from "@/utils";
 import { FC } from "react";
 import { styled } from "styled-components/native";
 
 type MarketStatsProps = {
-  stats: TMarketStats;
-  marketCap: any;
-  volume: any;
+  marketData: any;
 };
 
 const Container = styled.View``;
@@ -44,7 +41,7 @@ const Column = styled.View<{ align: string }>`
 `;
 
 export const MarketStats: FC<MarketStatsProps> = (props) => {
-  const { stats, marketCap, volume } = props;
+  const { marketData } = props;
   return (
     <Container>
       <SectionTitle>Market Stats</SectionTitle>
@@ -52,30 +49,30 @@ export const MarketStats: FC<MarketStatsProps> = (props) => {
       <Row>
         <Column align="flex-start">
           <Subtitle>24H High</Subtitle>
-          <Title>${stats.high_24h_usd.toFixed(2)}</Title>
+          <Title>${marketData.high_24h?.toFixed(2)}</Title>
         </Column>
         <Column align="flex-start">
           <Subtitle>24h Low</Subtitle>
-          <Title>${stats.low_24h_usd.toFixed(2)}</Title>
+          <Title>${marketData.low_24h?.toFixed(2)}</Title>
         </Column>
         <Column align="flex-start">
-          <Subtitle>24H Volume</Subtitle>
-          <Title>${formatNumber(volume)}</Title>
+          <Subtitle>Total Volume</Subtitle>
+          <Title>${formatNumber(marketData.total_volume)}</Title>
         </Column>
       </Row>
       <Space height={8} />
       <Row>
         <Column align="flex-start">
-          <Subtitle>3M High</Subtitle>
-          <Title>${stats.high_3m_usd.toFixed(2)}</Title>
-        </Column>
-        <Column align="flex-start">
-          <Subtitle>3M Low</Subtitle>
-          <Title>${stats.low_3m_usd.toFixed(2)}</Title>
-        </Column>
-        <Column align="flex-start">
           <Subtitle>Market Cap</Subtitle>
-          <Title>${formatNumber(marketCap)}</Title>
+          <Title>${formatNumber(marketData.market_cap)}</Title>
+        </Column>
+        <Column align="flex-start">
+          <Subtitle>ATH</Subtitle>
+          <Title>${marketData.ath?.toFixed(2)}</Title>
+        </Column>
+        <Column align="flex-start">
+          <Subtitle>Market Cap Rank</Subtitle>
+          <Title>{marketData.market_cap_rank}</Title>
         </Column>
       </Row>
     </Container>

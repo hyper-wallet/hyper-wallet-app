@@ -1,4 +1,4 @@
-import { Connection, Keypair, Transaction } from "@solana/web3.js";
+import { Keypair, Transaction } from "@solana/web3.js";
 import * as bs58 from "bs58";
 import nacl from "tweetnacl";
 import IWallet from "./IWallet";
@@ -10,36 +10,21 @@ import {
   TransferSplParams,
 } from "./types";
 import { WalletNft, WalletToken, WalletTransaction } from "@/types";
+import Network from "@/services/Network";
 
 export class SolanaWallet implements IWallet {
-  private _signer: Keypair;
-  private _connection: Connection;
+  private _keypair: Keypair;
+  private _network: Network;
   readonly isHyperWallet = false;
   readonly icon = "https://cdn.lu.ma/solana-coin-icons/SOL.png";
 
-  constructor(privateKey: string, connection: Connection) {
-    let keypair: Keypair;
-    if (privateKey.length == 128) {
-      // This is a 128-byte hexadecimal private key
-      keypair = Keypair.fromSecretKey(Buffer.from(privateKey, "hex"));
-    } else {
-      const secretKey = bs58.decode(privateKey);
-      keypair = Keypair.fromSecretKey(secretKey);
-    }
-    this._signer = keypair;
-    this._connection = connection;
-  }
-
-  get signer() {
-    return Keypair.fromSecretKey(bs58.decode(this.privateKey.slice(0, 65)));
+  constructor(privateKey: string, network: Network) {
+    this._keypair = SolanaWallet.getKeypairFromPrivateKey(privateKey);
+    this._network = network;
   }
 
   get address() {
-    return this._signer.publicKey.toString();
-  }
-
-  get privateKey() {
-    return bs58.encode(this._signer.secretKey);
+    return this._keypair.publicKey.toString();
   }
 
   async getTokens(): Promise<WalletToken[]> {
@@ -50,9 +35,7 @@ export class SolanaWallet implements IWallet {
     return apiService.getNfts(this.address);
   }
 
-  async getTransactions(
-    lastLoadedSignature?: string
-  ): Promise<WalletTransaction[]> {
+  async getTransactions(): Promise<WalletTransaction[]> {
     const transactions = await apiService.getTransactions(this.address);
     return transactions;
   }
@@ -98,14 +81,14 @@ export class SolanaWallet implements IWallet {
 
   signTransaction(tx: Transaction): Transaction {
     const message = tx.serializeMessage();
-    const signature = nacl.sign.detached(message, this._signer.secretKey);
-    tx.addSignature(this._signer.publicKey, Buffer.from(signature));
+    const signature = nacl.sign.detached(message, this._keypair.secretKey);
+    tx.addSignature(this._keypair.publicKey, Buffer.from(signature));
     return tx;
   }
 
   async signAndSendTransaction(tx: Transaction): Promise<string> {
     const signedTx = this.signTransaction(tx);
-    const signature = await this._connection.sendRawTransaction(
+    const signature = await this._network.sendRawTransaction(
       signedTx.serialize()
       // { skipPreflight: true },
     );
@@ -113,7 +96,9 @@ export class SolanaWallet implements IWallet {
   }
 
   static getAddressFromPrivateKey(privateKey: string) {
-    return this.getKeypairFromPrivateKey(privateKey).publicKey.toString();
+    return SolanaWallet.getKeypairFromPrivateKey(
+      privateKey
+    ).publicKey.toString();
   }
 
   static getKeypairFromPrivateKey(privateKey: string): Keypair {

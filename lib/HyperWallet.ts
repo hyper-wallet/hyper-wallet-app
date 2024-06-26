@@ -1,4 +1,4 @@
-import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
+import { PublicKey, Transaction } from "@solana/web3.js";
 import { SolanaWallet } from "@/lib/SolanaWallet";
 import { getHyperWalletPda } from "@/lib/utils";
 import IWallet from "./IWallet";
@@ -15,11 +15,11 @@ import { HYPER_PROGRAM_ID } from "./constants";
 import { Approver } from "./Approver";
 
 export class HyperWallet implements IWallet {
-  private _pda: PublicKey;
-  private _owner: SolanaWallet;
   readonly isHyperWallet = true;
   readonly icon = "https://cdn.lu.ma/solana-coin-icons/SOL.png";
-  public voters: string[] = [];
+  private _pda: PublicKey;
+  private _owner: SolanaWallet;
+  private _voters: string[] = [];
   private _deviceApprover: Approver;
   private _cloudApprover: Approver;
 
@@ -43,12 +43,16 @@ export class HyperWallet implements IWallet {
     return this._pda.toString();
   }
 
-  get deviceKeyAddress() {
-    return this._deviceApprover.address;
+  get voters() {
+    return this._voters;
   }
 
-  get cloudKeyAddress() {
-    return this._cloudApprover.address;
+  get deviceApprover() {
+    return this._deviceApprover;
+  }
+
+  get cloudApprover() {
+    return this._cloudApprover;
   }
 
   async init() {
@@ -62,7 +66,7 @@ export class HyperWallet implements IWallet {
       await this.createHyperWalletAccount();
     }
     account = await apiService.getHyperWalletAccount(this.address);
-    this.voters = account.voters ?? [];
+    this._voters = account.voters ?? [];
     return account;
   }
 
@@ -73,7 +77,6 @@ export class HyperWallet implements IWallet {
       voters: [this._deviceApprover.address, this._cloudApprover.address],
     });
     const recoveredTx = Transaction.from(Buffer.from(base64tx, "base64"));
-    console.log({ recoveredTx });
     await this.owner.signAndSendTransaction(recoveredTx);
   }
 
@@ -101,7 +104,10 @@ export class HyperWallet implements IWallet {
 
   async transferLamports(params: TransferLamportsParams): Promise<Signature> {
     const { toAddress, lamports } = params;
-    const approver = this._deviceApprover;
+    const approver = this._getValidApprover();
+    if (!approver) {
+      throw new Error("No Valid Transaction Approver");
+    }
 
     const tx = await apiService.constructHyperTransferLamportsTx({
       fromHyperWalletPda: this.address,
@@ -120,7 +126,10 @@ export class HyperWallet implements IWallet {
 
   async transferSpl(params: TransferSplParams): Promise<Signature> {
     const { toAddress, tokenMintAddress, rawAmount, feeToken } = params;
-    const approver = this._deviceApprover;
+    const approver = this._getValidApprover();
+    if (!approver) {
+      throw new Error("No Valid Transaction Approver");
+    }
 
     const tx = await apiService.constructHyperTransferSplTx({
       fromHyperWalletPda: this.address,
@@ -142,7 +151,10 @@ export class HyperWallet implements IWallet {
 
   async transferNft(params: TransferNftParams): Promise<Signature> {
     const { toAddress, nftMintAddress, feeToken } = params;
-    const approver = this._deviceApprover;
+    const approver = this._getValidApprover();
+    if (!approver) {
+      throw new Error("No Valid Transaction Approver");
+    }
 
     const tx = await apiService.constructHyperTransferSplTx({
       fromHyperWalletPda: this.address,
@@ -169,6 +181,7 @@ export class HyperWallet implements IWallet {
     });
     return this._signAndSendTransaction(base64tx);
   }
+
   async disableWhitelist() {
     const base64tx = await apiService.constructDisableWhitelistTx({
       hyperWalletPda: this.address,
@@ -176,6 +189,7 @@ export class HyperWallet implements IWallet {
     });
     return this._signAndSendTransaction(base64tx);
   }
+
   async addAddressToWhitelist(address: string) {
     const base64tx = await apiService.constructAddToWhitelistTx({
       hyperWalletPda: this.address,
@@ -184,6 +198,7 @@ export class HyperWallet implements IWallet {
     });
     return this._signAndSendTransaction(base64tx);
   }
+
   async removeAddressFromWhitelist(address: string) {
     const base64tx = await apiService.constructRemoveFromWhitelistTx({
       hyperWalletPda: this.address,
@@ -191,6 +206,18 @@ export class HyperWallet implements IWallet {
       addressToBeRemoved: address,
     });
     return this._signAndSendTransaction(base64tx);
+  }
+
+  private _getValidApprover(): Approver | null {
+    if (this.voters.includes(this._deviceApprover.address)) {
+      return this._deviceApprover;
+    }
+
+    if (this.voters.includes(this._cloudApprover.address)) {
+      return this._cloudApprover;
+    }
+
+    return null;
   }
 
   private async _signAndSendTransaction(base64tx: string): Promise<string> {

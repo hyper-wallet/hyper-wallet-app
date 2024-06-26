@@ -1,4 +1,4 @@
-import { Connection, clusterApiUrl } from "@solana/web3.js";
+import { Connection, SendOptions, clusterApiUrl } from "@solana/web3.js";
 import INetwork from "./INetwork";
 
 class Network implements INetwork {
@@ -10,6 +10,13 @@ class Network implements INetwork {
 
   get connection() {
     return this._connection;
+  }
+
+  async sendRawTransaction(
+    rawTransaction: Uint8Array | number[] | Buffer,
+    options?: SendOptions | undefined
+  ): Promise<string> {
+    return this._connection.sendRawTransaction(rawTransaction, options);
   }
 }
 

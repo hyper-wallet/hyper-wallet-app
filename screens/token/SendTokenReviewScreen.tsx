@@ -71,7 +71,7 @@ export const SendTokenReviewScreen: FC<
   const [feeToken, setFeeToken] = useState<FeeToken>("SOL");
   const { token, toAddress, amount } = route.params;
 
-  const { metadata, price } = token;
+  const { metadata, marketData } = token;
   const { symbol, image } = metadata;
 
   function confirmSend() {
@@ -89,7 +89,10 @@ export const SendTokenReviewScreen: FC<
       <Amount>
         {amount} {symbol.toUpperCase()}
       </Amount>
-      <Value>${(amount * (price.usd as unknown as number)).toFixed(2)}</Value>
+      <Value>
+        $
+        {(amount * (marketData?.current_price as unknown as number)).toFixed(2)}
+      </Value>
       <Space height={24} />
       <Card>
         <Row>

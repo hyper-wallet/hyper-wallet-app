@@ -34,8 +34,8 @@ export const WalletScreen: FC<RootTabScreenProps<"Wallet">> = ({
   const { refresh, refreshing, tokens } = useWalletTokens();
 
   const usdBalance = tokens.reduce((prev, token) => {
-    const { balance, price } = token;
-    return prev + balance * price.usd;
+    const { balance, marketData } = token;
+    return prev + balance * marketData?.current_price;
   }, 0);
 
   function viewTokenDetail(token: WalletToken) {

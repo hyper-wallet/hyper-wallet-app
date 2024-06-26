@@ -4,8 +4,8 @@ import { FC } from "react";
 import styled from "styled-components/native";
 
 type FeeTokenSelector = {
-  feeToken: "sol" | "usdt";
-  setFeeToken: (value: "sol" | "usdt") => void;
+  feeToken: "SOL" | "USDT";
+  setFeeToken: (value: "SOL" | "USDT") => void;
 };
 
 const Container = styled.View`

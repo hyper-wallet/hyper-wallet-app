@@ -53,7 +53,7 @@ export const SendTokenResultScreen: FC<
   const { currentWallet } = appStore;
 
   const { navigation, route } = props;
-  const { token, toAddress, amount, otp, feeToken } = route.params;
+  const { token, toAddress, amount, feeToken } = route.params;
 
   const { metadata, price } = token;
   const { image, name, symbol, mint_address } = metadata;
@@ -115,7 +115,6 @@ export const SendTokenResultScreen: FC<
       promise = wallet?.transferLamports({
         toAddress,
         lamports,
-        otp,
       });
     } else {
       const rawAmount = amount * Math.pow(10, 6);
@@ -123,7 +122,6 @@ export const SendTokenResultScreen: FC<
         toAddress,
         tokenMintAddress: mint_address,
         rawAmount,
-        otp,
         feeToken,
       });
     }
@@ -138,14 +136,25 @@ export const SendTokenResultScreen: FC<
             type: WalletTransactionType.TransferLamports,
             fromAddress: wallet?.address ?? "",
             toAddress,
-            token: { iconUrl: image, name, symbol },
-            amount: amount.toString(),
-            value: (amount * price.usd).toString(),
+            token: { iconUrl: image, name, symbol, amount, price: price.usd },
           })
           .then((res) => console.log(res))
           .catch((e) => console.error(e));
       })
-      .catch((error) => setError(error))
+      .catch((error) => {
+        setError(error);
+        apiService
+          .createTransaction({
+            signature,
+            type: WalletTransactionType.TransferLamports,
+            fromAddress: wallet?.address ?? "",
+            toAddress,
+            token: { iconUrl: image, name, symbol, amount, price: price.usd },
+            error: error.message,
+          })
+          .then((res) => console.log(res))
+          .catch((e) => console.error(e));
+      })
       .finally(() => setSending(false));
   }
 

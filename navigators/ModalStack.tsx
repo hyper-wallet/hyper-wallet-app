@@ -22,6 +22,7 @@ import {
   NativeStackScreenProps,
   createNativeStackNavigator,
 } from "@react-navigation/native-stack";
+import { FeeToken } from "@/lib/types";
 
 export type ModalStackParamList = {
   SelectWallet: undefined;
@@ -44,14 +45,13 @@ export type ModalStackParamList = {
     token: WalletToken;
     toAddress: string;
     amount: number;
-    feeToken: "sol" | "usdt";
+    feeToken: FeeToken;
   };
   SendTokenResult: {
     token: WalletToken;
     toAddress: string;
     amount: number;
-    otp: string | null;
-    feeToken: "sol" | "usdt";
+    feeToken: FeeToken;
   };
   SendNft: {
     nft: WalletNft;
@@ -63,13 +63,12 @@ export type ModalStackParamList = {
   SendNftOtp: {
     nft: WalletNft;
     toAddress: string;
-    feeToken: "sol" | "usdt";
+    feeToken: FeeToken;
   };
   SendNftResult: {
     nft: WalletNft;
     toAddress: string;
-    otp: string | null;
-    feeToken: "sol" | "usdt";
+    feeToken: FeeToken;
   };
   RecoveryPhrase: undefined;
   PrivateKey: undefined;

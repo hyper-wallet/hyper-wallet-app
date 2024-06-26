@@ -51,7 +51,7 @@ export class SolanaWallet implements IWallet {
   }
 
   async getTransactions(
-    lastLoadedSignature?: string,
+    lastLoadedSignature?: string
   ): Promise<WalletTransaction[]> {
     const transactions = await apiService.getTransactions(this.address);
     return transactions;
@@ -106,8 +106,8 @@ export class SolanaWallet implements IWallet {
   async signAndSendTransaction(tx: Transaction): Promise<string> {
     const signedTx = this.signTransaction(tx);
     const signature = await this._connection.sendRawTransaction(
-      signedTx.serialize(),
-      { skipPreflight: true },
+      signedTx.serialize()
+      // { skipPreflight: true },
     );
     return signature;
   }

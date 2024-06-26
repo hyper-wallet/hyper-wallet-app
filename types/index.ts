@@ -63,9 +63,10 @@ export type WalletTransaction = {
     iconUrl: string;
     name: string;
     symbol: string;
+    amount: number;
+    price: number;
   };
-  amount: string;
-  value: string;
+  error?: string;
 };
 
 export enum WalletTransactionType {

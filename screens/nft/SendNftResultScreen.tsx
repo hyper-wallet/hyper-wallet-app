@@ -51,7 +51,7 @@ export const SendNftResultScreen: FC<ModalStackScreenProps<"SendNftResult">> = (
   const { currentWallet } = appStore;
 
   const { navigation, route } = props;
-  const { nft, toAddress, otp, feeToken } = route.params;
+  const { nft, toAddress, feeToken } = route.params;
 
   const { metadata } = nft;
   const { name, symbol, mint, image_uri } = metadata;
@@ -103,7 +103,6 @@ export const SendNftResultScreen: FC<ModalStackScreenProps<"SendNftResult">> = (
     const promise = wallet?.transferNft({
       toAddress,
       nftMintAddress: mint,
-      otp,
       feeToken,
     });
 
@@ -117,14 +116,25 @@ export const SendNftResultScreen: FC<ModalStackScreenProps<"SendNftResult">> = (
             type: WalletTransactionType.TransferNft,
             fromAddress: wallet?.address ?? "",
             toAddress,
-            token: { iconUrl: image_uri, name, symbol },
-            amount: "1",
-            value: "",
+            token: { iconUrl: image_uri, name, symbol, amount: 1, price: 0 },
           })
           .then((res) => console.log(res))
           .catch((e) => console.error(e));
       })
-      .catch((error) => setError(error))
+      .catch((error) => {
+        setError(error);
+        apiService
+          .createTransaction({
+            signature,
+            type: WalletTransactionType.TransferNft,
+            fromAddress: wallet?.address ?? "",
+            toAddress,
+            token: { iconUrl: image_uri, name, symbol, amount: 1, price: 0 },
+            error: error.message,
+          })
+          .then((res) => console.log(res))
+          .catch((e) => console.error(e));
+      })
       .finally(() => setSending(false));
   }
 

@@ -74,8 +74,7 @@ class Api {
   }
 
   async createTransaction(params: CreateWalletTransactionParams) {
-    const { signature, type, fromAddress, toAddress, token, amount, value } =
-      params;
+    const { signature, type, fromAddress, toAddress, token, error } = params;
     const res = await this._apisauce.post<GetTransactionsResponse>(
       "/wallet/transactions",
       {
@@ -84,8 +83,7 @@ class Api {
         fromAddress,
         toAddress,
         token,
-        amount,
-        value,
+        error,
       }
     );
     if (!res.data) throw new Error("Error while constructing transaction");
@@ -197,9 +195,8 @@ class Api {
       fromHyperWalletPda,
       hyperWalletOwnerAddress,
       toAddress,
+      approverAddress,
       lamports,
-      otpHash,
-      proofHash,
     } = params;
     const res = await this._apisauce.post<ConstructTxReponse>(
       "/hyper-wallet/tx/transfer-lamports",
@@ -208,8 +205,7 @@ class Api {
         hyperWalletOwnerAddress,
         toAddress,
         lamports,
-        otpHash,
-        proofHash,
+        approverAddress,
       }
     );
     if (!res.data) throw new Error("Error while constructing transaction");
@@ -225,9 +221,8 @@ class Api {
       toAddress,
       tokenMintAddress,
       rawAmount,
-      otpHash,
-      proofHash,
       feeToken,
+      approverAddress,
     } = params;
     const res = await this._apisauce.post<ConstructTxReponse>(
       "/hyper-wallet/tx/transfer-spl",
@@ -237,9 +232,8 @@ class Api {
         toAddress,
         tokenMintAddress,
         rawAmount,
-        otpHash,
-        proofHash,
         feeToken,
+        approverAddress,
       }
     );
     if (!res.data) throw new Error("Error while constructing transaction");
@@ -254,9 +248,8 @@ class Api {
       hyperWalletOwnerAddress,
       toAddress,
       nftMintAddress,
-      otpHash,
-      proofHash,
       feeToken,
+      approverAddress,
     } = params;
     const res = await this._apisauce.post<ConstructTxReponse>(
       "/hyper-wallet/tx/transfer-nft",
@@ -265,9 +258,8 @@ class Api {
         hyperWalletOwnerAddress,
         toAddress,
         nftMintAddress,
-        otpHash,
-        proofHash,
         feeToken,
+        approverAddress,
       }
     );
     if (!res.data) throw new Error("Error while constructing transaction");

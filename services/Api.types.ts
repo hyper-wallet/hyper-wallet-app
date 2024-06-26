@@ -25,9 +25,10 @@ export type CreateWalletTransactionParams = {
     iconUrl: string;
     name: string;
     symbol: string;
+    amount: number;
+    price: number;
   };
-  amount: string;
-  value: string;
+  error?: string;
 };
 
 export type ConstructTxReponse = {
@@ -45,14 +46,14 @@ export type ConstructTransferSplTxParams = {
   toAddress: string;
   tokenMintAddress: string;
   rawAmount: number;
-  feeToken: "sol" | "usdt";
+  feeToken: FeeToken;
 };
 
 export type ConstructTransferNftTxParams = {
   fromAddress: string;
   toAddress: string;
   nftMintAddress: string;
-  feeToken: "sol" | "usdt";
+  feeToken: FeeToken;
 };
 
 export type ConstructHyperTransferLamportsTxParams = {
@@ -60,8 +61,7 @@ export type ConstructHyperTransferLamportsTxParams = {
   hyperWalletOwnerAddress: string;
   toAddress: string;
   lamports: number;
-  otpHash: Buffer | null;
-  proofHash: Buffer[] | null;
+  approverAddress: string;
 };
 
 export type ConstructHyperTransferSplTxParams = {
@@ -70,9 +70,8 @@ export type ConstructHyperTransferSplTxParams = {
   toAddress: string;
   tokenMintAddress: string;
   rawAmount: number;
-  otpHash: Buffer | null;
-  proofHash: Buffer[] | null;
-  feeToken: "sol" | "usdt";
+  feeToken: FeeToken;
+  approverAddress: string;
 };
 
 export type ConstructHyperTransferNftTxParams = {
@@ -80,9 +79,8 @@ export type ConstructHyperTransferNftTxParams = {
   hyperWalletOwnerAddress: string;
   toAddress: string;
   nftMintAddress: string;
-  otpHash: Buffer | null;
-  proofHash: Buffer[] | null;
-  feeToken: "sol" | "usdt";
+  feeToken: FeeToken;
+  approverAddress: string;
 };
 
 export type ConstructOtpSetupParams = {
@@ -119,3 +117,5 @@ export type ConstructRemoveFromWhitelistParams = {
   hyperWalletOwnerAddress: string;
   addressToBeRemoved: string;
 };
+
+export type FeeToken = "USDT" | "SOL";

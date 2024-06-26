@@ -24,20 +24,19 @@ export type Signature = string;
 export type TransferLamportsParams = {
   toAddress: string;
   lamports: number;
-  otp: string | null;
 };
 
 export type TransferSplParams = {
   toAddress: string;
   tokenMintAddress: string;
   rawAmount: number;
-  otp: string | null;
-  feeToken: "sol" | "usdt";
+  feeToken: FeeToken;
 };
 
 export type TransferNftParams = {
   toAddress: string;
   nftMintAddress: string;
-  otp: string | null;
-  feeToken: "sol" | "usdt";
+  feeToken: FeeToken;
 };
+
+export type FeeToken = "USDT" | "SOL";

@@ -5,6 +5,7 @@ import { styled } from "styled-components/native";
 import { Image } from "expo-image";
 import { middleEllipsis } from "@/utils";
 import { useStores } from "@/hooks";
+import { FeeToken } from "@/lib/types";
 
 const Container = styled.View`
   flex: 1;
@@ -67,28 +68,17 @@ export const SendTokenReviewScreen: FC<
   ModalStackScreenProps<"SendTokenReview">
 > = (props) => {
   const { navigation, route } = props;
-  const [feeToken, setFeeToken] = useState<"sol" | "usdt">("sol");
-  const { appStore, hyperWalletStore, solanaWalletStore } = useStores();
-  const { currentWallet } = appStore;
+  const [feeToken, setFeeToken] = useState<FeeToken>("SOL");
   const { token, toAddress, amount } = route.params;
 
   const { metadata, price } = token;
-  const { symbol, image, mint_address } = metadata;
+  const { symbol, image } = metadata;
 
   function confirmSend() {
-    if (currentWallet == "hyper" && hyperWalletStore.account?.otpEnabled) {
-      return navigation.navigate("SendTokenOtp", {
-        token,
-        toAddress,
-        amount,
-        feeToken,
-      });
-    }
     navigation.navigate("SendTokenResult", {
       token,
       toAddress,
       amount,
-      otp: null,
       feeToken,
     });
   }

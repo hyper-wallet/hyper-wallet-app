@@ -5,6 +5,7 @@ import { styled } from "styled-components/native";
 import { Image } from "expo-image";
 import { middleEllipsis } from "@/utils";
 import { useStores } from "@/hooks";
+import { FeeToken } from "@/lib/types";
 
 const Container = styled.View`
   flex: 1;
@@ -18,20 +19,6 @@ const NftImage = styled(Image)`
   align-self: center;
   margin-top: 24px;
   border: 1px solid ${({ theme }) => theme.border.primary};
-`;
-
-const Amount = styled.Text`
-  font-size: 24px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.foreground.primary};
-  align-self: center;
-  margin-top: 8px;
-`;
-
-const Value = styled.Text`
-  font-size: 20px;
-  color: ${({ theme }) => theme.foreground.tertiary};
-  align-self: center;
 `;
 
 const Card = styled.View`
@@ -68,26 +55,16 @@ export const SendNftReviewScreen: FC<ModalStackScreenProps<"SendNftReview">> = (
   props
 ) => {
   const { navigation, route } = props;
-  const [feeToken, setFeeToken] = useState<"sol" | "usdt">("sol");
-  const { appStore, hyperWalletStore, solanaWalletStore } = useStores();
-  const { currentWallet } = appStore;
+  const [feeToken, setFeeToken] = useState<FeeToken>("SOL");
   const { nft, toAddress } = route.params;
 
   const { metadata } = nft;
   const { image_uri } = metadata;
 
   function confirmSend() {
-    if (currentWallet == "hyper" && hyperWalletStore.account?.otpEnabled) {
-      return navigation.navigate("SendNftOtp", {
-        nft,
-        toAddress,
-        feeToken,
-      });
-    }
     navigation.navigate("SendNftResult", {
       nft,
       toAddress,
-      otp: null,
       feeToken,
     });
   }

@@ -11,8 +11,8 @@ import {
 } from "./types";
 import { apiService } from "@/services";
 import { WalletNft, WalletToken } from "@/types";
-import * as bs58 from "bs58";
 import { HYPER_PROGRAM_ID } from "./constants";
+import { Approver } from "./Approver";
 
 export class HyperWallet implements IWallet {
   private _pda: PublicKey;
@@ -20,14 +20,18 @@ export class HyperWallet implements IWallet {
   readonly isHyperWallet = true;
   readonly icon = "https://cdn.lu.ma/solana-coin-icons/SOL.png";
   public voters: string[] = [];
-  private deviceKeypair: Keypair;
-  private cloudKeypair: Keypair;
+  private _deviceApprover: Approver;
+  private _cloudApprover: Approver;
 
-  constructor(owner: SolanaWallet, devicePk: string, cloudPk: string) {
+  constructor(
+    owner: SolanaWallet,
+    deviceApprover: Approver,
+    cloudApprover: Approver
+  ) {
     this._pda = getHyperWalletPda(owner.address);
     this._owner = owner;
-    this.deviceKeypair = Keypair.fromSecretKey(bs58.decode(devicePk));
-    this.cloudKeypair = Keypair.fromSecretKey(bs58.decode(cloudPk));
+    this._deviceApprover = deviceApprover;
+    this._cloudApprover = cloudApprover;
     this.init();
   }
 
@@ -40,11 +44,11 @@ export class HyperWallet implements IWallet {
   }
 
   get deviceKeyAddress() {
-    return this.deviceKeypair.publicKey.toString();
+    return this._deviceApprover.address;
   }
 
   get cloudKeyAddress() {
-    return this.cloudKeypair.publicKey.toString();
+    return this._cloudApprover.address;
   }
 
   async init() {
@@ -66,10 +70,7 @@ export class HyperWallet implements IWallet {
     const base64tx = await apiService.constructCreateHyperWalletTx({
       hyperWalletPda: this.address,
       ownerAddress: this.owner.address,
-      voters: [
-        this.deviceKeypair.publicKey.toString(),
-        this.cloudKeypair.publicKey.toString(),
-      ],
+      voters: [this._deviceApprover.address, this._cloudApprover.address],
     });
     const recoveredTx = Transaction.from(Buffer.from(base64tx, "base64"));
     console.log({ recoveredTx });
@@ -99,59 +100,64 @@ export class HyperWallet implements IWallet {
   }
 
   async transferLamports(params: TransferLamportsParams): Promise<Signature> {
-    const { toAddress, lamports, otp } = params;
-    const { otpHash, proofHash } = await this._getOtpHashAndProofHash(otp);
+    const { toAddress, lamports } = params;
+    const approver = this._deviceApprover;
+
     const tx = await apiService.constructHyperTransferLamportsTx({
       fromHyperWalletPda: this.address,
       hyperWalletOwnerAddress: this.owner.address,
       toAddress,
       lamports,
-      otpHash,
-      proofHash,
+      approverAddress: approver.address,
     });
     const recoveredTransaction = Transaction.from(Buffer.from(tx, "base64"));
+    const approvedTransaction = approver.signTransaction(recoveredTransaction);
     const signature = await this.owner.signAndSendTransaction(
-      recoveredTransaction
+      approvedTransaction
     );
     return signature;
   }
 
   async transferSpl(params: TransferSplParams): Promise<Signature> {
-    const { toAddress, tokenMintAddress, rawAmount, otp, feeToken } = params;
-    const { otpHash, proofHash } = await this._getOtpHashAndProofHash(otp);
+    const { toAddress, tokenMintAddress, rawAmount, feeToken } = params;
+    const approver = this._deviceApprover;
+
     const tx = await apiService.constructHyperTransferSplTx({
       fromHyperWalletPda: this.address,
       hyperWalletOwnerAddress: this.owner.address,
       toAddress,
       tokenMintAddress,
       rawAmount,
-      otpHash,
-      proofHash,
       feeToken,
+      approverAddress: approver.address,
     });
     const recoveredTransaction = Transaction.from(Buffer.from(tx, "base64"));
+    const approvedTransaction =
+      this._deviceApprover.signTransaction(recoveredTransaction);
     const signature = await this.owner.signAndSendTransaction(
-      recoveredTransaction
+      approvedTransaction
     );
     return signature;
   }
 
   async transferNft(params: TransferNftParams): Promise<Signature> {
-    const { toAddress, nftMintAddress, otp, feeToken } = params;
-    const { otpHash, proofHash } = await this._getOtpHashAndProofHash(otp);
+    const { toAddress, nftMintAddress, feeToken } = params;
+    const approver = this._deviceApprover;
+
     const tx = await apiService.constructHyperTransferSplTx({
       fromHyperWalletPda: this.address,
       hyperWalletOwnerAddress: this.owner.address,
       toAddress,
       tokenMintAddress: nftMintAddress,
       rawAmount: 1,
-      otpHash,
-      proofHash,
       feeToken,
+      approverAddress: approver.address,
     });
     const recoveredTransaction = Transaction.from(Buffer.from(tx, "base64"));
+    const approvedTransaction =
+      this._deviceApprover.signTransaction(recoveredTransaction);
     const signature = await this.owner.signAndSendTransaction(
-      recoveredTransaction
+      approvedTransaction
     );
     return signature;
   }

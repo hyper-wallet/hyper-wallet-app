@@ -162,13 +162,13 @@ class Api {
   async constructCreateHyperWalletTx(
     params: ConstructCreateHyperWalletTxParams
   ): Promise<Base64Tx> {
-    const { hyperWalletPda, ownerAddress, voters } = params;
+    const { hyperWalletPda, ownerAddress, approvers } = params;
     const res = await this._apisauce.post<{ base64tx: Base64Tx }>(
       "hyper-wallet/tx/create-hyper-wallet",
       {
         hyperWalletPda,
         ownerAddress,
-        voters,
+        approvers,
       }
     );
     if (!res.data) throw new Error("Error while constructing transaction");

@@ -3,13 +3,13 @@ import { PublicKey } from "@solana/web3.js";
 
 export type HyperWalletAccount = {
   owner: PublicKey;
-  voters: string[];
+  approvers: string[];
 };
 
 export type ConstructCreateHyperWalletTxParams = {
   hyperWalletPda: string;
   ownerAddress: string;
-  voters: string[];
+  approvers: string[];
 };
 
 export type ConstructCloseHyperWalletTxParams = {

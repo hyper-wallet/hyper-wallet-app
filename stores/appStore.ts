@@ -51,6 +51,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   init: async () => {
     // TODO: Recover setttings
 
+    // Init Stores and Services
+    await socialAuthService.init();
+
     const privateKey =
       socialAuthService.getPrivateKey() ||
       (await LocalStore.get(LOCAL_STORE_KEYS.USER_PK));
@@ -58,16 +61,10 @@ export const useAppStore = create<AppState>((set, get) => ({
       await get().initWallet(privateKey);
     }
 
-    // Init Stores and Services
-    await socialAuthService.init();
-
     set({ initialized: true });
   },
   initWallet: async (privateKey: string) => {
-    const solanaWallet = new SolanaWallet(
-      privateKey,
-      networkService.connection
-    );
+    const solanaWallet = new SolanaWallet(privateKey, networkService);
 
     // Create or restore device key & cloud key
     let devicePk = await LocalStore.get(LOCAL_STORE_KEYS.DEVICE_PK);
@@ -124,6 +121,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       // Logout from social auth service
       socialAuthService.logout();
       // Clear private key from storage
+      LocalStore.remove(LOCAL_STORE_KEYS.USER_PK);
       set({ hasWallet: false });
     } catch (e) {
       console.log(e);

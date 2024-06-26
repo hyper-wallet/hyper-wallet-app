@@ -19,7 +19,7 @@ export class HyperWallet implements IWallet {
   readonly icon = "https://cdn.lu.ma/solana-coin-icons/SOL.png";
   private _pda: PublicKey;
   private _owner: SolanaWallet;
-  private _voters: string[] = [];
+  private _approvers: string[] = [];
   private _deviceApprover: Approver;
   private _cloudApprover: Approver;
 
@@ -43,8 +43,8 @@ export class HyperWallet implements IWallet {
     return this._pda.toString();
   }
 
-  get voters() {
-    return this._voters;
+  get approvers() {
+    return this._approvers;
   }
 
   get deviceApprover() {
@@ -66,7 +66,7 @@ export class HyperWallet implements IWallet {
       await this.createHyperWalletAccount();
     }
     account = await apiService.getHyperWalletAccount(this.address);
-    this._voters = account.voters ?? [];
+    this._approvers = account.approvers ?? [];
     return account;
   }
 
@@ -74,7 +74,7 @@ export class HyperWallet implements IWallet {
     const base64tx = await apiService.constructCreateHyperWalletTx({
       hyperWalletPda: this.address,
       ownerAddress: this.owner.address,
-      voters: [this._deviceApprover.address, this._cloudApprover.address],
+      approvers: [this._deviceApprover.address, this._cloudApprover.address],
     });
     const recoveredTx = Transaction.from(Buffer.from(base64tx, "base64"));
     await this.owner.signAndSendTransaction(recoveredTx);
@@ -209,11 +209,11 @@ export class HyperWallet implements IWallet {
   }
 
   private _getValidApprover(): Approver | null {
-    if (this.voters.includes(this._deviceApprover.address)) {
+    if (this._approvers.includes(this._deviceApprover.address)) {
       return this._deviceApprover;
     }
 
-    if (this.voters.includes(this._cloudApprover.address)) {
+    if (this._approvers.includes(this._cloudApprover.address)) {
       return this._cloudApprover;
     }
 

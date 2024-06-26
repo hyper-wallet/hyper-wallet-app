@@ -52,16 +52,12 @@ const PillButtonLabel = styled.Text`
 
 export const ImportPrivateKeyScreen: FC<
   CreateWalletScreenProps<"ImportPrivateKey">
-> = () => {
+> = (props) => {
   const [privateKey, setPrivateKey] = useState<string>("");
-  const [importing, setImporting] = useState(false);
   const { navigation } = props;
   const insets = useSafeAreaInsets();
-  const appStore = useAppStore();
 
   function submitImport() {
-    // setImporting(true);
-    // appStore.importPrivateKey(privateKey).finally(() => setImporting(false));
     navigation.navigate("WalletsPreview", { privateKey });
   }
 
@@ -91,8 +87,8 @@ export const ImportPrivateKeyScreen: FC<
         </PillButton>
         <Space />
         <Button
-          label={importing ? "Importing Wallet" : "Import Wallet"}
-          disabled={!privateKey || importing}
+          label="Import Wallet"
+          disabled={!privateKey}
           onPress={submitImport}
         />
         <Space height={insets.bottom} />

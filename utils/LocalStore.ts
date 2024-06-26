@@ -7,6 +7,9 @@ export class LocalStore {
   static async get(key: string) {
     return AsyncStorage.getItem(key);
   }
+  static async remove(key: string) {
+    return AsyncStorage.removeItem(key);
+  }
   static async clear() {
     return AsyncStorage.clear();
   }

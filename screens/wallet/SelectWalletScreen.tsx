@@ -1,4 +1,5 @@
 import { Space } from "@/components";
+import { useStores } from "@/hooks";
 import { ModalStackScreenProps } from "@/navigators";
 import { useAppStore } from "@/stores/appStore";
 import { palette } from "@/theme/palette";
@@ -49,7 +50,7 @@ export const SelectWalletScreen: FC<ModalStackScreenProps<"SelectWallet">> = (
   props
 ) => {
   const { navigation } = props;
-  const appStore = useAppStore();
+  const { appStore, solanaWalletStore, hyperWalletStore } = useStores();
   const { currentWallet, setCurrentWallet } = appStore;
   async function activateSolanaWallet() {
     await setCurrentWallet("solana");
@@ -70,7 +71,9 @@ export const SelectWalletScreen: FC<ModalStackScreenProps<"SelectWallet">> = (
         />
         <Space height={8} />
         <Title>Solana Wallet</Title>
-        <Subtitle>This is your Solana wallet</Subtitle>
+        <Subtitle numberOfLines={1} ellipsizeMode="middle">
+          {solanaWalletStore.wallet?.address}
+        </Subtitle>
       </SolanaWalletCard>
       <HyperWalletCard
         active={currentWallet == "hyper"}
@@ -83,9 +86,8 @@ export const SelectWalletScreen: FC<ModalStackScreenProps<"SelectWallet">> = (
         <Space height={8} />
         <Title>Hyper Wallet</Title>
         <Space height={4} />
-        <Subtitle>
-          This wallet is associated with your Solana wallet. It is managed by
-          smart contract to provide more features
+        <Subtitle numberOfLines={1} ellipsizeMode="middle">
+          {hyperWalletStore.wallet?.address}
         </Subtitle>
       </HyperWalletCard>
     </Container>

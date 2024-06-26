@@ -1,4 +1,5 @@
 import { WelcomeScreen, ImportPrivateKeyScreen } from "@/screens";
+import { SelectGenerateMethodScreen } from "@/screens/createWallet/SelectGenerateMethodScreen";
 import { SelectImportMethodScreen } from "@/screens/createWallet/SelectImportMethodScreen";
 import { WalletsPreviewScreen } from "@/screens/createWallet/WalletsPreviewScreen";
 import {
@@ -19,7 +20,7 @@ export type CreateWalletStackParamList = {
 };
 
 export type CreateWalletScreenProps<
-  T extends keyof CreateWalletStackParamList,
+  T extends keyof CreateWalletStackParamList
 > = NativeStackScreenProps<CreateWalletStackParamList, T>;
 
 const Stack = createNativeStackNavigator<CreateWalletStackParamList>();
@@ -40,6 +41,11 @@ export const CreateWalletStack = () => {
         name="SelectImportMethod"
         component={SelectImportMethodScreen}
         options={{ title: "Import Wallet" }}
+      />
+      <Stack.Screen
+        name="SelectGenerateMethod"
+        component={SelectGenerateMethodScreen}
+        options={{ title: "Create Wallet" }}
       />
       <Stack.Screen
         name="ImportPrivateKey"

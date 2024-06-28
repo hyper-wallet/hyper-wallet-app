@@ -16,4 +16,5 @@ export class SecureStore {
 export const SECURE_STORE_KEYS = {
   OTP_MERKLE_TREE: "otp-merkle-tree",
   WALLET_SETTINGS: "wallet-settings",
+  CLOUD_PK: "cloud-pl",
 };

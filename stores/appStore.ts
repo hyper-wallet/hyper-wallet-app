@@ -2,7 +2,12 @@ import { create } from "zustand";
 import { SolanaWallet } from "@/lib/SolanaWallet";
 import { HyperWallet } from "@/lib/HyperWallet";
 import { networkService, socialAuthService } from "@/services";
-import { LOCAL_STORE_KEYS, LocalStore } from "@/utils";
+import {
+  LOCAL_STORE_KEYS,
+  LocalStore,
+  SECURE_STORE_KEYS,
+  SecureStore,
+} from "@/utils";
 import {
   WalletNft,
   WalletSettings,
@@ -68,7 +73,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     // Create or restore device key & cloud key
     let devicePk = await LocalStore.get(LOCAL_STORE_KEYS.DEVICE_PK);
-    let cloudPk = await LocalStore.get(LOCAL_STORE_KEYS.CLOUD_PK);
+    let cloudPk = await SecureStore.get(SECURE_STORE_KEYS.CLOUD_PK);
 
     if (!devicePk) {
       devicePk = bs58.encode(Keypair.generate().secretKey);
@@ -76,7 +81,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
     if (!cloudPk) {
       cloudPk = bs58.encode(Keypair.generate().secretKey);
-      LocalStore.save(LOCAL_STORE_KEYS.CLOUD_PK, cloudPk);
+      SecureStore.save(SECURE_STORE_KEYS.CLOUD_PK, cloudPk);
     }
 
     const hyperWallet = new HyperWallet(

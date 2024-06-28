@@ -14,7 +14,12 @@ import { WalletNft, WalletToken } from "@/types";
 import { HYPER_PROGRAM_ID } from "./constants";
 import { Approver } from "./Approver";
 import * as bs58 from "bs58";
-import { LOCAL_STORE_KEYS, LocalStore } from "@/utils";
+import {
+  LOCAL_STORE_KEYS,
+  LocalStore,
+  SECURE_STORE_KEYS,
+  SecureStore,
+} from "@/utils";
 
 export class HyperWallet implements IWallet {
   readonly isHyperWallet = true;
@@ -220,7 +225,7 @@ export class HyperWallet implements IWallet {
       approvedTransaction
     );
 
-    LocalStore.save(LOCAL_STORE_KEYS.CLOUD_PK, newCloudPk);
+    SecureStore.save(SECURE_STORE_KEYS.CLOUD_PK, newCloudPk);
     this._cloudApprover = newCloudApprover;
 
     return signature;

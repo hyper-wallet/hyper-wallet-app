@@ -63,6 +63,7 @@ export const SettingsScreen: FC<RootTabScreenProps<"Settings">> = (props) => {
             <Space width={4} />
             <Title>Whitelist</Title>
             <Space />
+            <Icon name="ri-arrow-right-s-line" size={20} />
           </Row>
         </TouchableOpacity>
         <TouchableOpacity onPress={openExplorerSetting}>
@@ -71,6 +72,7 @@ export const SettingsScreen: FC<RootTabScreenProps<"Settings">> = (props) => {
             <Space width={4} />
             <Title>Explorer</Title>
             <Space />
+            <Icon name="ri-arrow-right-s-line" size={20} />
           </Row>
         </TouchableOpacity>
         <TouchableOpacity onPress={openNetworkSetting}>
@@ -79,6 +81,7 @@ export const SettingsScreen: FC<RootTabScreenProps<"Settings">> = (props) => {
             <Space width={4} />
             <Title>Network</Title>
             <Space />
+            <Icon name="ri-arrow-right-s-line" size={20} />
           </Row>
         </TouchableOpacity>
       </Card>

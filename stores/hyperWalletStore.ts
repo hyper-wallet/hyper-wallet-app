@@ -13,6 +13,7 @@ interface HyperWalletState {
   transactions: WalletTransaction[];
   init: (hyperWallet: HyperWallet) => Promise<void>;
   setAccount: (data: any) => void;
+  fetchAccount: () => Promise<void>;
   getTokens: () => Promise<void>;
   getNfts: () => Promise<void>;
   getTransactions: () => Promise<void>;
@@ -27,6 +28,12 @@ export const useHyperWalletStore = create<HyperWalletState>((set, get) => ({
   init: async (hyperWallet: HyperWallet) => {
     const account = await hyperWallet.getOrCreateHyperWalletAccount();
     set({ wallet: hyperWallet, account });
+  },
+  fetchAccount: async () => {
+    const account = await get().wallet?.getOrCreateHyperWalletAccount();
+    if (account) {
+      set({ account });
+    }
   },
   setAccount: (data: any) => {
     set((s) => ({

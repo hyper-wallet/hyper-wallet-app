@@ -79,6 +79,7 @@ export type ModalStackParamList = {
     otpLink: string;
   };
   WhitelistSetting: undefined;
+  ExplorerSetting: undefined;
 };
 
 export type ModalStackScreenProps<T extends keyof ModalStackParamList> =

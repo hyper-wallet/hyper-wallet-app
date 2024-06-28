@@ -88,7 +88,11 @@ export class HyperWallet implements IWallet {
       ownerAddress: this.owner.address,
     });
     const recoveredTx = Transaction.from(Buffer.from(base64tx, "base64"));
-    await this.owner.signAndSendTransaction(recoveredTx);
+    const signature = await this.owner.signAndSendTransaction(recoveredTx);
+    console.log(
+      "🚀 ~ HyperWallet ~ closeHyperWalletAccount ~ signature:",
+      signature
+    );
   }
 
   async getTokens(): Promise<WalletToken[]> {

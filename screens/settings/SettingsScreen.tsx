@@ -26,13 +26,27 @@ const Row = styled.View`
   padding: 0 16px;
 `;
 
-export const SettingsScreen: FC<RootTabScreenProps<"Settings">> = () => {
+export const SettingsScreen: FC<RootTabScreenProps<"Settings">> = (props) => {
   const theme = useTheme();
+  const { navigation } = props;
   const { removeWallet } = useAppStore();
   const { hyperWalletStore } = useStores();
 
   function closeWallet() {
     hyperWalletStore.wallet?.closeHyperWalletAccount().then(removeWallet);
+  }
+
+  function openWhitelistSetting() {
+    navigation.navigate("WhitelistSetting");
+  }
+
+  function openExplorerSetting() {
+    navigation.navigate("ExplorerSetting");
+  }
+
+  function openNetworkSetting() {
+    // @ts-ignore
+    navigation.navigate("NetworkSetting");
   }
 
   return (
@@ -43,7 +57,7 @@ export const SettingsScreen: FC<RootTabScreenProps<"Settings">> = () => {
         Settings
       </SectionTitle>
       <Card>
-        <TouchableOpacity onPress={closeWallet}>
+        <TouchableOpacity onPress={openWhitelistSetting}>
           <Row>
             <Icon name="ri-file-list-line" size={20} />
             <Space width={4} />
@@ -51,7 +65,7 @@ export const SettingsScreen: FC<RootTabScreenProps<"Settings">> = () => {
             <Space />
           </Row>
         </TouchableOpacity>
-        <TouchableOpacity onPress={closeWallet}>
+        <TouchableOpacity onPress={openExplorerSetting}>
           <Row>
             <Icon name="ri-search-line" size={20} />
             <Space width={4} />
@@ -59,7 +73,7 @@ export const SettingsScreen: FC<RootTabScreenProps<"Settings">> = () => {
             <Space />
           </Row>
         </TouchableOpacity>
-        <TouchableOpacity onPress={closeWallet}>
+        <TouchableOpacity onPress={openNetworkSetting}>
           <Row>
             <Icon name="ri-global-line" size={20} />
             <Space width={4} />

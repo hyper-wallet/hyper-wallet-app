@@ -4,6 +4,8 @@ import { PublicKey } from "@solana/web3.js";
 export type HyperWalletAccount = {
   owner: PublicKey;
   approvers: string[];
+  whitelist_enabled: boolean;
+  whitelisted_addresses: string[];
 };
 
 export type ConstructCreateHyperWalletTxParams = {

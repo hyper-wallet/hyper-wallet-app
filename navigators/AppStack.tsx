@@ -5,10 +5,18 @@ import {
 import { RootTab } from "./RootTab";
 import { ModalStack, ModalStackParamList } from "./ModalStack";
 import { NavigatorScreenParams } from "@react-navigation/native";
+import {
+  ExplorerSettingScreen,
+  NetworkSettingScreen,
+  WhitelistSettingScreen,
+} from "@/screens";
 
 export type AppStackParamList = {
   RootTab: undefined;
   ModalStack: NavigatorScreenParams<ModalStackParamList>;
+  WhitelistSetting: undefined;
+  ExplorerSetting: undefined;
+  NetworkSetting: undefined;
 };
 
 export type AppStackScreenProps<T extends keyof AppStackParamList> =
@@ -32,6 +40,30 @@ export const AppStack = () => {
         options={{
           presentation: "modal",
           headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="WhitelistSetting"
+        component={WhitelistSettingScreen}
+        options={{
+          title: "Whitelist",
+          headerBackTitleVisible: false,
+        }}
+      />
+      <Stack.Screen
+        name="ExplorerSetting"
+        component={ExplorerSettingScreen}
+        options={{
+          title: "Explorer",
+          headerBackTitleVisible: false,
+        }}
+      />
+      <Stack.Screen
+        name="NetworkSetting"
+        component={NetworkSettingScreen}
+        options={{
+          title: "Network",
+          headerBackTitleVisible: false,
         }}
       />
     </Stack.Navigator>

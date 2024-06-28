@@ -61,7 +61,8 @@ export const WhitelistSettingScreen: FC<
 
   if (!hyperWalletStore.account) return <View />;
 
-  const { whitelistEnabled, whitelistedAddresses } = hyperWalletStore.account;
+  const { whitelist_enabled, whitelisted_addresses = [] } =
+    hyperWalletStore.account;
 
   function enable() {
     enableWhitelistModal.current?.open();
@@ -76,21 +77,25 @@ export const WhitelistSettingScreen: FC<
       "Enter address",
       "Enter address to be added to whitelist",
       (value) => {
-        hyperWalletStore.wallet?.addAddressToWhitelist(value);
+        hyperWalletStore.wallet
+          ?.addAddressToWhitelist(value)
+          .then(hyperWalletStore.fetchAccount);
       }
     );
   }
   function removeAddress(address: string) {
-    hyperWalletStore.wallet?.removeAddressFromWhitelist(address);
+    hyperWalletStore.wallet
+      ?.removeAddressFromWhitelist(address)
+      .then(hyperWalletStore.fetchAccount);
   }
 
   return (
     <Container>
       <SectionTitle>Whitelisted addresses</SectionTitle>
       <Space height={8} />
-      {whitelistedAddresses.length > 0 && (
+      {whitelisted_addresses.length > 0 && (
         <Card>
-          {whitelistedAddresses.map((address) => (
+          {whitelisted_addresses.map((address) => (
             <Row key={address}>
               <Subtitle
                 numberOfLines={1}
@@ -110,7 +115,7 @@ export const WhitelistSettingScreen: FC<
       <Space />
       <Button variant="secondary" label="Add address" onPress={addAddress} />
       <Space height={16} />
-      {whitelistEnabled ? (
+      {whitelist_enabled ? (
         <Button label="Disable" onPress={disable} />
       ) : (
         <Button label="Enable" onPress={enable} />

@@ -6,13 +6,30 @@ import { ThemeProvider } from "styled-components/native";
 import { darkTheme, lightTheme, Theme } from "@/theme";
 import { AppStack, CreateWalletStack } from "@/navigators";
 import { View } from "react-native";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAppStore } from "@/stores/appStore";
 import "react-native-reanimated";
+import { AuthenticationFailedScreen } from "./screens/authenticate/AuthenticationFailedScreen";
+import * as LocalAuthentication from "expo-local-authentication";
 
 export default function App() {
   const theme: Theme = lightTheme;
   const appStore = useAppStore();
+  const [authenticated, setAuthenticated] = useState(false);
+
+  useEffect(() => {
+    authenticate();
+  }, []);
+
+  async function authenticate() {
+    LocalAuthentication.authenticateAsync({
+      biometricsSecurityLevel: "strong",
+    }).then(({ success }) => {
+      if (success) {
+        setAuthenticated(true);
+      }
+    });
+  }
 
   useEffect(() => {
     appStore.init();
@@ -20,6 +37,10 @@ export default function App() {
 
   if (!appStore.initialized) {
     return <View />;
+  }
+
+  if (!authenticated) {
+    return <AuthenticationFailedScreen reauthenticate={authenticate} />;
   }
 
   const { hasWallet } = appStore;

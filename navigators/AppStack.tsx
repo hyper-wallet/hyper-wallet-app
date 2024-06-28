@@ -17,6 +17,7 @@ export type AppStackParamList = {
   WhitelistSetting: undefined;
   ExplorerSetting: undefined;
   NetworkSetting: undefined;
+  AuthenticationFailed: undefined;
 };
 
 export type AppStackScreenProps<T extends keyof AppStackParamList> =

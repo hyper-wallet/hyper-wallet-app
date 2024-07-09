@@ -4,6 +4,7 @@ import { useAppStore } from "@/stores/appStore";
 import { FC } from "react";
 import styled from "styled-components/native";
 import { Image } from "expo-image";
+import { socialAuthService } from "@/services";
 
 const Container = styled.View`
   flex: 1;
@@ -35,7 +36,11 @@ export const SelectImportMethodScreen: FC<
   const appStore = useAppStore();
 
   async function loginWithGoogle() {
-    return appStore.loginWithGoogle();
+    await socialAuthService.loginWithGoogle();
+    const privateKey = socialAuthService.getPrivateKey();
+    navigation.navigate("WalletsPreview", {
+      privateKey,
+    });
   }
 
   function importPrivateKey() {

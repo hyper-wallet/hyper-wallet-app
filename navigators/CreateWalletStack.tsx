@@ -1,4 +1,8 @@
-import { WelcomeScreen, ImportPrivateKeyScreen } from "@/screens";
+import {
+  WelcomeScreen,
+  ImportPrivateKeyScreen,
+  ImportRecoveryPhraseScreen,
+} from "@/screens";
 import { SelectGenerateMethodScreen } from "@/screens/createWallet/SelectGenerateMethodScreen";
 import { SelectImportMethodScreen } from "@/screens/createWallet/SelectImportMethodScreen";
 import { WalletsPreviewScreen } from "@/screens/createWallet/WalletsPreviewScreen";
@@ -51,6 +55,11 @@ export const CreateWalletStack = () => {
         name="ImportPrivateKey"
         component={ImportPrivateKeyScreen}
         options={{ title: "Import with Private Key" }}
+      />
+      <Stack.Screen
+        name="ImportRecoveryPhrase"
+        component={ImportRecoveryPhraseScreen}
+        options={{ title: "Import with Recovery Phrase" }}
       />
       <Stack.Screen
         name="WalletsPreview"
